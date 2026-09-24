@@ -3,6 +3,7 @@ import FailureLab from './components/FailureLab.jsx'
 import Header from './components/Header.jsx'
 import { IconWifiOff } from './components/Icons.jsx'
 import PromptInput from './components/PromptInput.jsx'
+import RouteArt from './components/RouteArt.jsx'
 import ResultView from './components/ResultView.jsx'
 import Toast from './components/Toast.jsx'
 import { useItinerary } from './hooks/useItinerary.js'
@@ -23,6 +24,7 @@ export default function App() {
   const [scenario, setScenario] = useState('')
   const [toast, setToast] = useState(null)
   const [justGenerated, setJustGenerated] = useState(false)
+  const [editing, setEditing] = useState(false)
 
   const itinerary = useItinerary(saved?.trip ?? null)
   const request = useLatestRequest()
@@ -72,6 +74,7 @@ export default function App() {
       setWarnings(out.result.warnings)
       setMeta(out.result.meta)
       setJustGenerated(true)
+      setEditing(false)
     }
   }, [input, run, scenario, load])
 
@@ -112,11 +115,24 @@ export default function App() {
     setWarnings([])
     setMeta(null)
     setInput('')
+    setEditing(false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
     requestAnimationFrame(() => inputRef.current?.focus())
   }, [clear])
 
+  const expandPrompt = useCallback(() => {
+    setEditing(true)
+    requestAnimationFrame(() => {
+      const el = inputRef.current
+      if (!el) return
+      el.focus()
+      el.setSelectionRange(el.value.length, el.value.length)
+    })
+  }, [])
+
   const editRequest = useCallback(() => {
     reset()
+    setEditing(true)
     requestAnimationFrame(() => {
       inputRef.current?.focus()
       inputRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
@@ -137,13 +153,17 @@ export default function App() {
   }, [undo])
 
   const loading = request.status === 'loading'
+  const landing = !trip && request.status === 'idle'
+  // the input folds into a one-line bar once there's a trip to look at
+  const collapsed = Boolean(trip) && !editing && !loading
 
   return (
-    <div className="app">
+    <div className={`app ${landing ? 'is-landing' : ''}`}>
       <a className="skip-link" href="#trip-input">
         Skip to trip input
       </a>
-      <Header demo={serverInfo?.demo} />
+      <div className="backdrop" aria-hidden="true" />
+      <Header demo={serverInfo?.demo} onHome={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
 
       {!online && (
         <div className="offline-banner" role="status">
@@ -152,10 +172,18 @@ export default function App() {
       )}
 
       <main className="container">
-        <div className="intro">
-          <h1>Plan a trip in one sentence.</h1>
-          <p className="muted">Then reshape it: reorder, move stops between days, remove, or ask AI to tweak a single day.</p>
-        </div>
+        {!trip && (
+          <div className="hero">
+            <p className="eyebrow">AI trip planner</p>
+            <h1>
+              Say where. <em>We'll craft the days.</em>
+            </h1>
+            <p className="hero-sub">
+              Describe a trip in one sentence and get a day-by-day plan you can drag, reshape and share.
+            </p>
+            {landing && <RouteArt className="route-hero" duration={5} />}
+          </div>
+        )}
 
         <PromptInput
           inputRef={inputRef}
@@ -165,6 +193,8 @@ export default function App() {
           onCancel={cancel}
           loading={loading}
           online={online}
+          collapsed={collapsed}
+          onExpand={expandPrompt}
         />
 
         {labEnabled && <FailureLab value={scenario} onChange={setScenario} />}
@@ -189,8 +219,8 @@ export default function App() {
         />
       </main>
 
-      <footer className="site-footer muted small">
-        Built for the Flam frontend assignment · AI plans can be wrong, check opening hours before you go.
+      <footer className="site-footer">
+        Tripcraft · AI plans can be wrong, check opening hours before you go.
       </footer>
 
       <Toast toast={toast} onClose={closeToast} />

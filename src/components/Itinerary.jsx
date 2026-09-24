@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { buildShareUrl } from '../lib/share.js'
-import DayCard from './DayCard.jsx'
+import DayTabs from './DayTabs.jsx'
+import DayView from './DayView.jsx'
 import { IconPlus, IconShare, IconUndo } from './Icons.jsx'
+import TripHero from './TripHero.jsx'
 
 export default function Itinerary({
   trip,
@@ -19,6 +21,7 @@ export default function Itinerary({
   focusOnMount,
 }) {
   const headingRef = useRef(null)
+  const [active, setActive] = useState(0)
   const [shareUrl, setShareUrl] = useState(null)
 
   useEffect(() => {
@@ -28,23 +31,37 @@ export default function Itinerary({
   // any edit makes an old share link out of date
   useEffect(() => setShareUrl(null), [trip])
 
-  // depends on the count only, so editing one day doesn't hand every DayCard a new array
+  // undo can bring back fewer days than the tab we're on
+  const day = Math.min(active, trip.days.length - 1)
+
+  // depends on the count only, so an edit doesn't hand every stop a new array
   const dayCount = trip.days.length
   const dayLabels = useMemo(() => Array.from({ length: dayCount }, (_, i) => `Day ${i + 1}`), [dayCount])
-  const stopCount = trip.days.reduce((n, d) => n + d.stops.length, 0)
+
+  const moveToDay = useCallback(
+    (stopId, to) => {
+      const stop = trip.days.flatMap((d) => d.stops).find((s) => s.id === stopId)
+      actions.moveToDay(stopId, to)
+      onToast({
+        message: `Moved "${stop?.name ?? 'stop'}" to Day ${to + 1}`,
+        action: { label: 'View', run: () => setActive(to) },
+      })
+    },
+    [trip.days, actions, onToast],
+  )
 
   async function share() {
     try {
       const url = await buildShareUrl(trip)
       if (url.length > 16000) onToast({ message: 'Heads up: this link is very long and may not open everywhere.' })
-      // navigator.share on phones, clipboard on desktop, and if both are
+      // native share sheet on phones, clipboard on desktop, and if both are
       // blocked just show the link so it can be copied by hand
       if (navigator.share && matchMedia('(pointer: coarse)').matches) {
         await navigator.share({ title: trip.title, url }).catch(() => {})
         return
       }
       await navigator.clipboard.writeText(url)
-      onToast({ message: 'Link copied - anyone with it sees this exact plan.' })
+      onToast({ message: 'Link copied. Anyone with it sees this exact plan.' })
     } catch {
       setShareUrl(await buildShareUrl(trip).catch(() => null))
     }
@@ -52,32 +69,22 @@ export default function Itinerary({
 
   return (
     <section className="itinerary" aria-labelledby="trip-title">
-      <header className="trip-header">
-        <div>
-          <h2 id="trip-title" ref={headingRef} tabIndex={-1}>
-            {trip.title}
-          </h2>
-          <p className="muted">
-            {trip.days.length} {trip.days.length === 1 ? 'day' : 'days'} · {stopCount} {stopCount === 1 ? 'stop' : 'stops'}
-            {meta?.demo && ' · sample data'}
-            {meta?.repaired && ' · fixed a broken AI reply automatically'}
-          </p>
-        </div>
-        <div className="trip-actions">
-          <button type="button" className="btn btn-ghost btn-sm" onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)">
-            <IconUndo size={16} /> Undo
-          </button>
-          <button type="button" className="btn btn-ghost btn-sm" onClick={share}>
-            <IconShare size={16} /> Share
-          </button>
-          <button type="button" className="btn btn-ghost btn-sm" onClick={onNewTrip}>
-            <IconPlus size={16} /> New trip
-          </button>
-        </div>
-      </header>
+      <TripHero trip={trip} meta={meta} headingRef={headingRef} />
+
+      <div className="trip-actions">
+        <button type="button" className="btn btn-soft" onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)">
+          <IconUndo size={16} /> Undo
+        </button>
+        <button type="button" className="btn btn-soft" onClick={share}>
+          <IconShare size={16} /> Share
+        </button>
+        <button type="button" className="btn btn-soft" onClick={onNewTrip}>
+          <IconPlus size={16} /> New trip
+        </button>
+      </div>
 
       {shareUrl && (
-        <div className="share-fallback card">
+        <div className="share-fallback">
           <label htmlFor="share-url">Copy this link:</label>
           <input id="share-url" readOnly value={shareUrl} onFocus={(e) => e.target.select()} autoFocus />
         </div>
@@ -96,25 +103,24 @@ export default function Itinerary({
         </details>
       )}
 
-      <div className="days">
-        {trip.days.map((day, i) => (
-          <DayCard
-            key={day.id}
-            day={day}
-            index={i}
-            dayLabels={dayLabels}
-            destination={trip.destination}
-            lastChange={lastChange && day.stops.some((s) => s.id === lastChange.stopId) ? lastChange : null}
-            online={online}
-            actions={actions}
-            onRemoveStop={onRemoveStop}
-            onRefine={onRefineDay}
-          />
-        ))}
-      </div>
+      <DayTabs days={trip.days} active={day} onChange={setActive} />
+
+      <DayView
+        key={trip.days[day].id}
+        day={trip.days[day]}
+        index={day}
+        dayLabels={dayLabels}
+        destination={trip.destination}
+        lastChange={lastChange}
+        online={online}
+        actions={actions}
+        onRemoveStop={onRemoveStop}
+        onMoveToDay={moveToDay}
+        onRefine={onRefineDay}
+      />
 
       {trip.tips.length > 0 && (
-        <aside className="card tips" aria-label="Tips">
+        <aside className="tips" aria-label="Good to know">
           <h3>Good to know</h3>
           <ul>
             {trip.tips.map((t, i) => (

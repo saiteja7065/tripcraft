@@ -1,4 +1,4 @@
-// Small inline icons - a whole icon library for ~12 glyphs isn't worth the bytes.
+// Small inline icons - a whole icon library for ~25 glyphs isn't worth the bytes.
 
 function Svg({ children, size = 18, ...rest }) {
   return (
@@ -24,7 +24,7 @@ export const IconUp = (p) => <Svg {...p}><path d="M12 19V5M5 12l7-7 7 7" /></Svg
 export const IconDown = (p) => <Svg {...p}><path d="M12 5v14M19 12l-7 7-7-7" /></Svg>
 export const IconTrash = (p) => <Svg {...p}><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6" /></Svg>
 export const IconUndo = (p) => <Svg {...p}><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 010 11H11" /></Svg>
-export const IconShare = (p) => <Svg {...p}><path d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.7 1.7" /><path d="M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.7-1.7" /></Svg>
+export const IconShare = (p) => <Svg {...p}><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v13" /></Svg>
 export const IconChevron = (p) => <Svg {...p}><path d="M6 9l6 6 6-6" /></Svg>
 export const IconPin = (p) => <Svg {...p}><path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" /></Svg>
 export const IconSparkle = (p) => <Svg {...p}><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" /><path d="M19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z" /></Svg>
@@ -35,3 +35,29 @@ export const IconMoon = (p) => <Svg {...p}><path d="M21 12.8A9 9 0 1111.2 3a7 7 
 export const IconX = (p) => <Svg {...p}><path d="M18 6L6 18M6 6l12 12" /></Svg>
 export const IconWifiOff = (p) => <Svg {...p}><path d="M2 2l20 20M8.5 16.5a5 5 0 017 0M5 12.9a10 10 0 015.2-2.8M19 12.9a10 10 0 00-2.3-1.6M2 8.8a15 15 0 014.2-2.6M22 8.8A15 15 0 0010.7 5M12 20h.01" /></Svg>
 export const IconPlus = (p) => <Svg {...p}><path d="M12 5v14M5 12h14" /></Svg>
+export const IconDots = (p) => <Svg {...p}><circle cx="5" cy="12" r="1.3" fill="currentColor" /><circle cx="12" cy="12" r="1.3" fill="currentColor" /><circle cx="19" cy="12" r="1.3" fill="currentColor" /></Svg>
+export const IconGrip = (p) => (
+  <Svg {...p} stroke="none" fill="currentColor">
+    <circle cx="9" cy="6" r="1.6" /><circle cx="15" cy="6" r="1.6" />
+    <circle cx="9" cy="12" r="1.6" /><circle cx="15" cy="12" r="1.6" />
+    <circle cx="9" cy="18" r="1.6" /><circle cx="15" cy="18" r="1.6" />
+  </Svg>
+)
+export const IconPlane = (p) => <Svg {...p}><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></Svg>
+export const IconClock = (p) => <Svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></Svg>
+export const IconEdit = (p) => <Svg {...p}><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" /></Svg>
+export const IconArrowRight = (p) => <Svg {...p}><path d="M5 12h14M13 5l7 7-7 7" /></Svg>
+export const IconCalendar = (p) => <Svg {...p}><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></Svg>
+
+// category glyphs for the timeline nodes
+export const CATEGORY_ICONS = {
+  sight: (p) => <Svg {...p}><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6" /></Svg>,
+  food: (p) => <Svg {...p}><path d="M7 2v8a2 2 0 002 2v10M5 2v6M9 2v6M17 22V2c-2 1.5-3 4-3 7s1 4 3 4" /></Svg>,
+  activity: (p) => <Svg {...p}><circle cx="13" cy="4" r="2" /><path d="M8 22l3-7 3 3v4M7 12l3-3 4 1 3 3M10 9l-1 5" /></Svg>,
+  nature: (p) => <Svg {...p}><path d="M12 22v-6M7 16h10L12 3z" /><path d="M9 11h6" /></Svg>,
+  shopping: (p) => <Svg {...p}><path d="M6 7h12l1 14H5zM9 7a3 3 0 016 0" /></Svg>,
+  nightlife: (p) => <Svg {...p}><path d="M8 22h8M12 15v7M5 3h14l-7 12z" /></Svg>,
+  transport: (p) => <Svg {...p}><rect x="4" y="3" width="16" height="14" rx="3" /><path d="M4 11h16M8 21l-1-4M16 21l1-4M8 14h.01M16 14h.01" /></Svg>,
+  stay: (p) => <Svg {...p}><path d="M3 20V8M3 14h18v6M21 14v-2a3 3 0 00-3-3h-7v5" /><circle cx="7" cy="11" r="2" /></Svg>,
+  other: (p) => <Svg {...p}><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="9" /></Svg>,
+}
