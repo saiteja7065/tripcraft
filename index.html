@@ -8,6 +8,14 @@
     <meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Tripwise - AI trip planner</title>
+    <script>
+      // set the theme before first paint so dark mode users don't get a white flash
+      try {
+        var t = localStorage.getItem('tripwise:theme')
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = t
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
