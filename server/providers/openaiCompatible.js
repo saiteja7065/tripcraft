@@ -8,7 +8,7 @@ const BASE_URLS = {
   openrouter: 'https://openrouter.ai/api/v1',
 }
 
-export function createOpenAICompatible(name, { apiKey, model }) {
+export function createOpenAICompatible(name, { apiKey, model, reasoningEffort }) {
   return {
     name,
     model,
@@ -26,6 +26,10 @@ export function createOpenAICompatible(name, { apiKey, model }) {
             // json mode - no schema enforcement here, just "valid json".
             // wrong shapes can still come through, the client validator catches those.
             response_format: { type: 'json_object' },
+            // reasoning models (gpt-oss) think before answering. "low" was ~3x
+            // faster and ~3x fewer tokens in testing with no drop in quality,
+            // and tokens matter a lot on groq's 8k tokens/min free tier
+            ...(reasoningEffort && { reasoning_effort: reasoningEffort }),
             messages: [
               { role: 'system', content: system },
               { role: 'user', content: user },

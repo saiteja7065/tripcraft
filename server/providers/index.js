@@ -8,22 +8,27 @@ import { ProviderError } from './ProviderError.js'
 export function buildProviders(env = process.env) {
   const available = {}
   if (env.GEMINI_API_KEY) {
-    available.gemini = createGemini({ apiKey: env.GEMINI_API_KEY, model: env.GEMINI_MODEL || 'gemini-2.5-flash' })
+    available.gemini = createGemini({
+      apiKey: env.GEMINI_API_KEY,
+      model: env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
+      thinkingLevel: env.GEMINI_THINKING_LEVEL || undefined,
+    })
   }
   if (env.GROQ_API_KEY) {
     available.groq = createOpenAICompatible('groq', {
       apiKey: env.GROQ_API_KEY,
-      model: env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+      model: env.GROQ_MODEL || 'openai/gpt-oss-120b',
+      reasoningEffort: env.GROQ_REASONING_EFFORT || undefined,
     })
   }
   if (env.OPENROUTER_API_KEY) {
     available.openrouter = createOpenAICompatible('openrouter', {
       apiKey: env.OPENROUTER_API_KEY,
-      model: env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct:free',
+      model: env.OPENROUTER_MODEL || 'google/gemma-4-31b-it:free',
     })
   }
 
-  const preferred = (env.LLM_PROVIDER || 'gemini').toLowerCase()
+  const preferred = (env.LLM_PROVIDER || 'groq').toLowerCase()
   const ordered = Object.keys(available).sort((a, b) => (a === preferred ? -1 : b === preferred ? 1 : 0))
   const list = ordered.map((k) => available[k])
 

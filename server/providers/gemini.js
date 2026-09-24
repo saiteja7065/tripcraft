@@ -3,7 +3,7 @@ import { ProviderError, fromFetchError, fromHttpStatus } from './ProviderError.j
 // Plain REST call, no SDK - it's one POST and this way there's nothing hidden.
 // docs: https://ai.google.dev/api/generate-content
 
-export function createGemini({ apiKey, model }) {
+export function createGemini({ apiKey, model, thinkingLevel }) {
   return {
     name: 'gemini',
     model,
@@ -23,6 +23,8 @@ export function createGemini({ apiKey, model }) {
               maxOutputTokens: 8192,
               responseMimeType: 'application/json',
               ...(schema && { responseSchema: schema }),
+              // gemini 3 models think by default; not every model accepts every level
+              ...(thinkingLevel && { thinkingConfig: { thinkingLevel } }),
             },
           }),
         })
