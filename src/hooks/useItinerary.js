@@ -63,10 +63,12 @@ function editTrip(trip, action) {
     }
 
     case 'replaceDay': {
-      if (!trip.days[action.dayIndex]) return trip
+      // by id, not index: if a whole new trip was generated while this day was
+      // being refined, the old day id is gone and the late reply is ignored
+      if (!trip.days.some((d) => d.id === action.dayId)) return trip
       return withDays(
         trip,
-        trip.days.map((day, i) => (i === action.dayIndex ? { ...action.day, id: day.id } : day)),
+        trip.days.map((day) => (day.id === action.dayId ? { ...action.day, id: day.id } : day)),
       )
     }
 
@@ -102,7 +104,7 @@ export function itineraryReducer(state, action) {
       return {
         trip,
         past: [...state.past, state.trip].slice(-HISTORY_LIMIT),
-        lastChange: { type: action.type, stopId: action.stopId, dayIndex: action.dayIndex, at: Date.now() },
+        lastChange: { type: action.type, stopId: action.stopId, dayId: action.dayId, at: Date.now() },
       }
     }
   }
@@ -120,7 +122,7 @@ export function useItinerary(initialTrip = null) {
       remove: (stopId) => dispatch({ type: 'remove', stopId }),
       move: (stopId, offset) => dispatch({ type: 'move', stopId, offset }),
       moveToDay: (stopId, dayIndex) => dispatch({ type: 'moveToDay', stopId, dayIndex }),
-      replaceDay: (dayIndex, day) => dispatch({ type: 'replaceDay', dayIndex, day }),
+      replaceDay: (dayId, day) => dispatch({ type: 'replaceDay', dayId, day }),
       setStartTime: (dayIndex, startTime) => dispatch({ type: 'setStartTime', dayIndex, startTime }),
     }),
     [],

@@ -47,11 +47,16 @@ describe('itineraryReducer', () => {
   it('replaces a day but keeps its id', () => {
     const s = itineraryReducer(loaded, {
       type: 'replaceDay',
-      dayIndex: 1,
+      dayId: 'd2',
       day: { id: 'new', theme: 'new', startTime: '08:00', stops: [stop('y')] },
     })
     expect(s.trip.days[1].id).toBe('d2')
     expect(s.trip.days[1].theme).toBe('new')
+  })
+
+  it('ignores a refined day whose trip was replaced meanwhile', () => {
+    const s = itineraryReducer(loaded, { type: 'replaceDay', dayId: 'old-trip-day', day: trip.days[0] })
+    expect(s).toBe(loaded)
   })
 
   it('does nothing for unknown stop ids', () => {
