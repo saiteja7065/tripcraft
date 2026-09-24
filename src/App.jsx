@@ -158,7 +158,7 @@ export default function App() {
   const collapsed = Boolean(trip) && !editing && !loading
 
   return (
-    <div className={`app ${landing ? 'is-landing' : ''}`}>
+    <div className={`app ${landing ? 'is-landing' : ''} ${trip ? 'has-trip' : 'is-intro'}`}>
       <a className="skip-link" href="#trip-input">
         Skip to trip input
       </a>

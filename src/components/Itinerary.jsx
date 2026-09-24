@@ -69,66 +69,72 @@ export default function Itinerary({
 
   return (
     <section className="itinerary" aria-labelledby="trip-title">
-      <TripHero trip={trip} meta={meta} headingRef={headingRef} />
+      {/* two columns on desktop: the ticket + actions stay pinned on the left while
+          the days scroll on the right. on mobile both wrappers are display:contents */}
+      <div className="trip-side">
+        <TripHero trip={trip} meta={meta} headingRef={headingRef} />
 
-      <div className="trip-actions">
-        <button type="button" className="btn btn-soft" onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)">
-          <IconUndo size={16} /> Undo
-        </button>
-        <button type="button" className="btn btn-soft" onClick={share}>
-          <IconShare size={16} /> Share
-        </button>
-        <button type="button" className="btn btn-soft" onClick={onNewTrip}>
-          <IconPlus size={16} /> New trip
-        </button>
+        <div className="trip-actions">
+          <button type="button" className="btn btn-soft" onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)">
+            <IconUndo size={16} /> Undo
+          </button>
+          <button type="button" className="btn btn-soft" onClick={share}>
+            <IconShare size={16} /> Share
+          </button>
+          <button type="button" className="btn btn-soft" onClick={onNewTrip}>
+            <IconPlus size={16} /> New trip
+          </button>
+        </div>
+
+        {shareUrl && (
+          <div className="share-fallback">
+            <label htmlFor="share-url">Copy this link:</label>
+            <input id="share-url" readOnly value={shareUrl} onFocus={(e) => e.target.select()} autoFocus />
+          </div>
+        )}
+
+        {warnings?.length > 0 && (
+          <details className="warnings">
+            <summary>
+              We tidied up {warnings.length} small {warnings.length === 1 ? 'issue' : 'issues'} in the AI's reply
+            </summary>
+            <ul>
+              {warnings.map((w, i) => (
+                <li key={i}>{w}</li>
+              ))}
+            </ul>
+          </details>
+        )}
+
+        {trip.tips.length > 0 && (
+          <aside className="tips" aria-label="Good to know">
+            <h3>Good to know</h3>
+            <ul>
+              {trip.tips.map((t, i) => (
+                <li key={i}>{t}</li>
+              ))}
+            </ul>
+          </aside>
+        )}
       </div>
 
-      {shareUrl && (
-        <div className="share-fallback">
-          <label htmlFor="share-url">Copy this link:</label>
-          <input id="share-url" readOnly value={shareUrl} onFocus={(e) => e.target.select()} autoFocus />
-        </div>
-      )}
+      <div className="trip-main">
+        <DayTabs days={trip.days} active={day} onChange={setActive} />
 
-      {warnings?.length > 0 && (
-        <details className="warnings">
-          <summary>
-            We tidied up {warnings.length} small {warnings.length === 1 ? 'issue' : 'issues'} in the AI's reply
-          </summary>
-          <ul>
-            {warnings.map((w, i) => (
-              <li key={i}>{w}</li>
-            ))}
-          </ul>
-        </details>
-      )}
-
-      <DayTabs days={trip.days} active={day} onChange={setActive} />
-
-      <DayView
-        key={trip.days[day].id}
-        day={trip.days[day]}
-        index={day}
-        dayLabels={dayLabels}
-        destination={trip.destination}
-        lastChange={lastChange}
-        online={online}
-        actions={actions}
-        onRemoveStop={onRemoveStop}
-        onMoveToDay={moveToDay}
-        onRefine={onRefineDay}
-      />
-
-      {trip.tips.length > 0 && (
-        <aside className="tips" aria-label="Good to know">
-          <h3>Good to know</h3>
-          <ul>
-            {trip.tips.map((t, i) => (
-              <li key={i}>{t}</li>
-            ))}
-          </ul>
-        </aside>
-      )}
+        <DayView
+          key={trip.days[day].id}
+          day={trip.days[day]}
+          index={day}
+          dayLabels={dayLabels}
+          destination={trip.destination}
+          lastChange={lastChange}
+          online={online}
+          actions={actions}
+          onRemoveStop={onRemoveStop}
+          onMoveToDay={moveToDay}
+          onRefine={onRefineDay}
+        />
+      </div>
     </section>
   )
 }

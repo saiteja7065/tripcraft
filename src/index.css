@@ -1890,6 +1890,142 @@ body.is-dragging {
   }
 }
 
+/* ---------- desktop: use the width ---------- */
+
+/* mobile/tablet: the column wrappers don't exist as boxes, tips go last */
+.trip-side,
+.trip-main {
+  display: contents;
+}
+.tips {
+  order: 10;
+}
+
+@media (min-width: 1024px) {
+  .container,
+  .site-header {
+    max-width: 1200px;
+  }
+  .container {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+  .site-header {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  /* intro (no trip yet): headline left, prompt + status right */
+  .is-intro .container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    column-gap: 56px;
+    row-gap: 18px;
+    align-items: start;
+  }
+  .is-intro .container > * {
+    grid-column: 2;
+  }
+  .is-intro .hero {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    position: sticky;
+    top: 24px;
+    padding-top: 40px;
+  }
+  .is-intro .hero h1 {
+    font-size: clamp(3rem, 4.4vw, 4.1rem);
+  }
+  .is-intro .route-hero {
+    margin: 36px 0 0;
+    max-width: 100%;
+  }
+  .is-intro .prompt {
+    margin-top: 48px;
+  }
+  .is-intro .features {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, 1fr) 1.2fr;
+    margin-top: 32px;
+  }
+  .is-intro .preview-card {
+    grid-column: auto;
+  }
+
+  /* trip: pinned ticket on the left, days on the right */
+  .itinerary {
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    column-gap: 36px;
+    align-items: start;
+  }
+  .trip-side {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    padding-bottom: 4px;
+  }
+  .trip-main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .tips {
+    order: 0;
+  }
+  /* the ticket goes back to portrait in the narrow side column */
+  .pass {
+    flex-direction: column;
+  }
+  .pass-main {
+    padding: 24px 24px 20px;
+  }
+  .pass-dest {
+    font-size: 2.6rem;
+  }
+  .pass-stub {
+    width: auto;
+    border-left: none;
+    border-top: 2px dashed rgba(255, 255, 255, 0.45);
+    padding: 16px 24px 20px;
+  }
+  .pass-stub::before,
+  .pass-stub::after {
+    top: -12px;
+    bottom: auto;
+  }
+  .pass-stub::before {
+    left: -11px;
+  }
+  .pass-stub::after {
+    left: auto;
+    right: -11px;
+  }
+  .pass-stub dl {
+    flex-direction: row;
+    width: 100%;
+  }
+  .trip-actions .btn {
+    flex: 1 1 0;
+    padding: 0 10px;
+  }
+  .day-tabs-wrap {
+    margin: 0;
+    padding: 10px 0;
+  }
+  .day-tab {
+    min-width: 150px;
+  }
+  .day-title {
+    font-size: 2rem;
+  }
+}
+
 @media (hover: hover) and (min-width: 640px) {
   /* keep rows calm; tools fade in on hover or keyboard focus */
   .tl-tools {
