@@ -3,7 +3,7 @@ import { validateTripObject } from './validateResult.js'
 // localStorage can throw (private mode, storage full, blocked cookies) -
 // saving is a nice-to-have, so it must never break the app.
 
-const KEY = 'tripwise:v1'
+const KEY = 'tripcraft:v1'
 
 export function loadSession() {
   try {
