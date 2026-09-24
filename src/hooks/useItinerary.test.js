@@ -33,6 +33,15 @@ describe('itineraryReducer', () => {
     expect(names(up, 0)).toEqual(['b', 'c', 'a'])
   })
 
+  it('reorders a stop to an exact index (drag and drop)', () => {
+    const s = itineraryReducer(loaded, { type: 'reorder', stopId: 'c', toIndex: 0 })
+    expect(names(s, 0)).toEqual(['c', 'a', 'b'])
+    const same = itineraryReducer(loaded, { type: 'reorder', stopId: 'a', toIndex: 0 })
+    expect(same).toBe(loaded)
+    const clamped = itineraryReducer(loaded, { type: 'reorder', stopId: 'a', toIndex: 99 })
+    expect(names(clamped, 0)).toEqual(['b', 'c', 'a'])
+  })
+
   it('ignores moves past the edges without adding undo history', () => {
     const s = itineraryReducer(loaded, { type: 'move', stopId: 'a', offset: -1 })
     expect(s).toBe(loaded)

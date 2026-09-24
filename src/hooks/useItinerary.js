@@ -47,6 +47,21 @@ function editTrip(trip, action) {
       )
     }
 
+    case 'reorder': {
+      // drag and drop: put the stop at an exact position in its own day
+      const at = findStop(trip, action.stopId)
+      if (!at) return trip
+      const stops = trip.days[at.d].stops
+      const to = Math.max(0, Math.min(action.toIndex, stops.length - 1))
+      if (to === at.s) return trip
+      const next = stops.filter((s) => s.id !== action.stopId)
+      next.splice(to, 0, stops[at.s])
+      return withDays(
+        trip,
+        trip.days.map((day, i) => (i === at.d ? { ...day, stops: next } : day)),
+      )
+    }
+
     case 'moveToDay': {
       // append to the end of another day - the user can nudge it from there
       const at = findStop(trip, action.stopId)
@@ -121,6 +136,7 @@ export function useItinerary(initialTrip = null) {
     () => ({
       remove: (stopId) => dispatch({ type: 'remove', stopId }),
       move: (stopId, offset) => dispatch({ type: 'move', stopId, offset }),
+      reorder: (stopId, toIndex) => dispatch({ type: 'reorder', stopId, toIndex }),
       moveToDay: (stopId, dayIndex) => dispatch({ type: 'moveToDay', stopId, dayIndex }),
       replaceDay: (dayId, day) => dispatch({ type: 'replaceDay', dayId, day }),
       setStartTime: (dayIndex, startTime) => dispatch({ type: 'setStartTime', dayIndex, startTime }),
