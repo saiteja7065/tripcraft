@@ -102,7 +102,13 @@ function editTrip(trip, action) {
 export function itineraryReducer(state, action) {
   switch (action.type) {
     case 'load':
-      return { trip: action.trip, past: [], lastChange: null }
+      // keepHistory: opening a share link shouldn't wipe the user's own trip
+      // for good - it goes onto the undo stack instead
+      return {
+        trip: action.trip,
+        past: action.keepHistory && state.trip ? [...state.past, state.trip].slice(-HISTORY_LIMIT) : [],
+        lastChange: null,
+      }
 
     case 'clear':
       return initialState
@@ -128,7 +134,7 @@ export function itineraryReducer(state, action) {
 export function useItinerary(initialTrip = null) {
   const [state, dispatch] = useReducer(itineraryReducer, initialTrip, (trip) => ({ ...initialState, trip }))
 
-  const load = useCallback((trip) => dispatch({ type: 'load', trip }), [])
+  const load = useCallback((trip, opts) => dispatch({ type: 'load', trip, keepHistory: opts?.keepHistory }), [])
   const clear = useCallback(() => dispatch({ type: 'clear' }), [])
   const undo = useCallback(() => dispatch({ type: 'undo' }), [])
 

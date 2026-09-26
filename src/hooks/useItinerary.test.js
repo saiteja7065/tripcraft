@@ -42,6 +42,15 @@ describe('itineraryReducer', () => {
     expect(names(clamped, 0)).toEqual(['b', 'c', 'a'])
   })
 
+  it('can load a new trip but keep the old one undoable (share links)', () => {
+    const other = { ...trip, title: 'shared' }
+    const s = itineraryReducer(loaded, { type: 'load', trip: other, keepHistory: true })
+    expect(s.trip.title).toBe('shared')
+    expect(itineraryReducer(s, { type: 'undo' }).trip.title).toBe('t')
+    // a normal load (new generation) starts fresh
+    expect(itineraryReducer(loaded, { type: 'load', trip: other }).past).toEqual([])
+  })
+
   it('ignores moves past the edges without adding undo history', () => {
     const s = itineraryReducer(loaded, { type: 'move', stopId: 'a', offset: -1 })
     expect(s).toBe(loaded)
@@ -93,6 +102,12 @@ describe('share links', () => {
     const code = await encodeTrip(trip)
     const back = await decodeTrip(code)
     expect(back.days[0].stops.map((s) => s.name)).toEqual(['a', 'b', 'c'])
+  })
+
+  it('keeps a trip the user emptied', async () => {
+    const empty = { ...trip, days: trip.days.map((d) => ({ ...d, stops: [] })) }
+    const back = await decodeTrip(await encodeTrip(empty))
+    expect(back.days).toHaveLength(2)
   })
 
   it('returns null for garbage instead of throwing', async () => {

@@ -4,7 +4,7 @@
 const COPY = {
   OFFLINE: {
     title: "You're offline",
-    hint: "Check your connection. We'll enable the button again as soon as you're back.",
+    hint: "Check your connection. We'll try again by ourselves as soon as you're back online.",
     retry: true,
   },
   NETWORK: {

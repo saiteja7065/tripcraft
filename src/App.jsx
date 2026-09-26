@@ -34,6 +34,13 @@ export default function App() {
   const { trip, undo, load, clear, actions } = itinerary
   const { run, cancel, reset } = request
 
+  // callbacks read the trip through a ref so their identity doesn't change on
+  // every edit - otherwise every day view re-renders whenever any stop moves
+  const tripRef = useRef(trip)
+  useLayoutEffect(() => {
+    tripRef.current = trip
+  }, [trip])
+
   // start waking the server up (render free tier sleeps) while the user types
   useEffect(() => {
     warmUp().then(setServerInfo)
@@ -43,16 +50,29 @@ export default function App() {
   useEffect(() => {
     const code = readShareCode()
     if (!code) return
+    // decoding is async; if the effect is torn down first (strict mode runs
+    // effects twice in dev) the stale result must not load the trip again
+    let cancelled = false
     decodeTrip(code).then((shared) => {
+      if (cancelled) return
       clearShareCode()
       if (shared) {
-        load(shared)
-        setToast({ message: 'Opened a shared trip. Edits stay on your device.' })
+        const hadTrip = Boolean(tripRef.current)
+        load(shared, { keepHistory: true })
+        // the collapsed bar shows the request text; the old one would be misleading
+        setInput(shared.title)
+        setToast({
+          message: hadTrip ? 'Opened a shared trip. Your own trip is one undo away.' : 'Opened a shared trip. Edits stay on your device.',
+          action: hadTrip ? { label: 'Undo', run: undo } : undefined,
+        })
       } else {
         setToast({ message: "That share link is broken or incomplete, so we couldn't open it." })
       }
     })
-  }, [load])
+    return () => {
+      cancelled = true
+    }
+  }, [load, undo])
 
   // keep the latest input + trip so a refresh (or a dropped tab on mobile) loses nothing
   useEffect(() => {
@@ -78,12 +98,18 @@ export default function App() {
     }
   }, [input, run, scenario, load])
 
-  // refineDay reads the trip through a ref so its identity doesn't change on
-  // every edit - otherwise every DayCard re-renders whenever any stop moves
-  const tripRef = useRef(trip)
-  useLayoutEffect(() => {
-    tripRef.current = trip
-  }, [trip])
+  // failed because the connection dropped? try again by itself the moment
+  // the browser says we're back online, instead of waiting for a click
+  // only the online flag triggers this; the rest is read through a ref so a
+  // failing retry can't re-trigger itself in a loop
+  const lastError = request.status === 'error' ? request.error?.code : null
+  const reconnectRetry = useRef(null)
+  useEffect(() => {
+    reconnectRetry.current = lastError === 'OFFLINE' || lastError === 'NETWORK' ? generate : null
+  })
+  useEffect(() => {
+    if (online) reconnectRetry.current?.()
+  }, [online])
 
   const refineDay = useCallback(
     async (dayId, dayIndex, instruction, signal) => {
