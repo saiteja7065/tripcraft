@@ -930,78 +930,117 @@ code {
 .pass {
   --from: var(--sun-1);
   --to: var(--sun-2);
+  --paper: #f7eedf;
+  --paper-2: #efe3cf;
+  --paper-ink: #221b13;
+  --paper-muted: #8b7558;
+  --perf: #d8c5a5;
   position: relative;
   display: flex;
   flex-direction: column;
   border-radius: var(--r-xl);
-  color: #fff;
+  color: var(--paper-ink);
+  /* paper: soft light from the top left + a very faint horizontal grain */
   background:
-    radial-gradient(120% 140% at 100% 0%, rgba(255, 255, 255, 0.28), transparent 50%),
-    linear-gradient(135deg, var(--from), var(--to));
-  box-shadow: 0 24px 50px -24px var(--from);
+    radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, 0.7), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(120, 90, 50, 0.028) 0 1px, transparent 1px 3px),
+    var(--paper);
+  border: 1px solid #e6d6bb;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 2px 6px rgba(80, 50, 20, 0.07),
+    0 22px 44px -24px rgba(80, 50, 20, 0.45);
   overflow: hidden;
 }
-/* soft contour lines, like a map, over the gradient */
-.pass::before {
+/* the printed colour stripe down the left edge */
+.pass::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background:
-    repeating-radial-gradient(circle at 85% 20%, transparent 0 18px, rgba(255, 255, 255, 0.09) 19px 20px);
-  mask-image: linear-gradient(to left, #000 20%, transparent 75%);
-  -webkit-mask-image: linear-gradient(to left, #000 20%, transparent 75%);
-  pointer-events: none;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  background: linear-gradient(var(--from), var(--to));
 }
 .pass-main {
   position: relative;
-  padding: 20px 20px 18px;
+  padding: 18px 20px 18px 26px;
+}
+.pass-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--perf);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-muted);
 }
 .pass-route {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.72rem;
+  align-items: flex-end;
+  gap: 12px;
+  font-size: 0.95rem;
   font-weight: 800;
+  letter-spacing: 0.14em;
+  margin-bottom: 16px;
+}
+.pass-end {
+  display: grid;
+  line-height: 1.15;
+}
+.pass-end small {
+  font-size: 0.6rem;
+  font-weight: 700;
   letter-spacing: 0.16em;
-  opacity: 0.9;
-  margin-bottom: 18px;
+  text-transform: uppercase;
+  color: var(--paper-muted);
 }
 .pass-line {
   flex: 1;
-  max-width: 140px;
+  max-width: 150px;
   display: flex;
   justify-content: center;
-  border-top: 1.5px dashed rgba(255, 255, 255, 0.6);
+  border-top: 1.5px dashed var(--perf);
   height: 0;
+  margin-bottom: 8px;
+  color: var(--from);
 }
 .pass-line svg {
   margin-top: -9px;
   transform: rotate(45deg);
 }
 .pass-label {
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  opacity: 0.8;
+  color: var(--paper-muted);
 }
 .pass-dest {
+  position: relative;
+  z-index: 1;
   font-family: var(--font-display);
   font-weight: 650;
   font-size: clamp(2.1rem, 9vw, 3.2rem);
   line-height: 1.02;
   letter-spacing: -0.03em;
   margin-top: 2px;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.12);
   overflow-wrap: anywhere;
 }
 .pass-dest:focus {
   outline: none;
 }
 .pass-title {
+  position: relative;
+  z-index: 1;
   margin-top: 6px;
+  padding-right: 70px; /* keep clear of the stamp */
   font-weight: 600;
-  opacity: 0.92;
+  color: color-mix(in srgb, var(--paper-ink) 75%, transparent);
 }
 .pass-flags {
   display: flex;
@@ -1010,30 +1049,66 @@ code {
   margin-top: 12px;
 }
 .pass-flags span {
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   padding: 3px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.22);
-  backdrop-filter: blur(4px);
+  color: var(--from);
+  background: color-mix(in srgb, var(--from) 12%, transparent);
+}
+
+/* rubber stamp, slightly crooked, like it was inked by hand */
+.pass-stamp {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  outline: 1px solid currentColor;
+  outline-offset: -7px;
+  color: var(--from);
+  opacity: 0.4;
+  transform: rotate(-14deg);
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  pointer-events: none;
+}
+.pass-stamp b {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
 }
 
 /* the tear-off stub: dashed perforation with two notches cut out */
 .pass-stub {
   position: relative;
-  padding: 16px 20px 18px;
-  border-top: 2px dashed rgba(255, 255, 255, 0.45);
-  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px 16px 26px;
+  border-top: 2px dashed var(--perf);
+  background: color-mix(in srgb, var(--paper-2) 60%, transparent);
 }
 .pass-stub::before,
 .pass-stub::after {
   content: '';
   position: absolute;
+  z-index: 2;
   top: -12px;
   width: 22px;
   height: 22px;
   border-radius: 50%;
   background: var(--bg);
+  box-shadow: inset 0 1px 2px rgba(80, 50, 20, 0.18);
 }
 .pass-stub::before {
   left: -11px;
@@ -1047,17 +1122,34 @@ code {
   gap: 12px;
 }
 .pass-stub dt {
-  font-size: 0.66rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.8;
+  color: var(--paper-muted);
 }
 .pass-stub dd {
   font-family: var(--font-display);
   font-size: 1.7rem;
   font-weight: 600;
   line-height: 1.1;
+  color: var(--from);
+}
+.pass-code {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--paper-muted);
+}
+.barcode {
+  display: block;
+  height: 26px;
+  width: 140px;
+  fill: var(--paper-ink);
+  opacity: 0.85;
 }
 
 .trip-actions {
@@ -1848,9 +1940,8 @@ body.is-dragging {
     width: 170px;
     flex: none;
     border-top: none;
-    border-left: 2px dashed rgba(255, 255, 255, 0.45);
-    display: flex;
-    align-items: center;
+    border-left: 2px dashed var(--perf);
+    justify-content: center;
     padding: 20px 22px;
   }
   .pass-stub::before,
@@ -1868,6 +1959,14 @@ body.is-dragging {
   .pass-stub dl {
     flex-direction: column;
     gap: 10px;
+  }
+  .pass-code {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .barcode {
+    width: 120px;
   }
   .trip-actions .btn {
     flex: 0 0 auto;
@@ -1983,7 +2082,7 @@ body.is-dragging {
     flex-direction: column;
   }
   .pass-main {
-    padding: 24px 24px 20px;
+    padding: 20px 22px 20px 30px;
   }
   .pass-dest {
     font-size: 2.6rem;
@@ -1991,8 +2090,8 @@ body.is-dragging {
   .pass-stub {
     width: auto;
     border-left: none;
-    border-top: 2px dashed rgba(255, 255, 255, 0.45);
-    padding: 16px 24px 20px;
+    border-top: 2px dashed var(--perf);
+    padding: 16px 22px 18px 30px;
   }
   .pass-stub::before,
   .pass-stub::after {
@@ -2009,6 +2108,14 @@ body.is-dragging {
   .pass-stub dl {
     flex-direction: row;
     width: 100%;
+  }
+  .pass-code {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  .barcode {
+    width: 140px;
   }
   .trip-actions .btn {
     flex: 1 1 0;
@@ -2047,4 +2154,74 @@ body.is-dragging {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ---------- dark theme polish ----------
+   night sky instead of flat navy: a few faint stars, a warm glow on the
+   horizon, and cards that catch a little light on their top edge */
+
+:root[data-theme='dark'] .backdrop {
+  background:
+    radial-gradient(55rem 30rem at 105% -5%, rgba(255, 150, 80, 0.16), transparent 60%),
+    radial-gradient(45rem 30rem at -15% 15%, rgba(110, 90, 255, 0.14), transparent 60%),
+    radial-gradient(60rem 26rem at 50% 115%, rgba(255, 106, 92, 0.12), transparent 65%),
+    linear-gradient(180deg, #0b0f1e, #0d1124 60%, #110f22);
+}
+:root[data-theme='dark'] .backdrop::after {
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.55), transparent 1.5px),
+    radial-gradient(1px 1px at 140px 90px, rgba(255, 255, 255, 0.35), transparent 1.5px),
+    radial-gradient(1.5px 1.5px at 90px 160px, rgba(255, 220, 180, 0.5), transparent 2px),
+    radial-gradient(1px 1px at 210px 210px, rgba(255, 255, 255, 0.3), transparent 1.5px);
+  background-size: 240px 240px;
+  mask-image: linear-gradient(to bottom, #000, transparent 55%);
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 55%);
+  opacity: 0.8;
+}
+
+/* cards: a thin highlight along the top edge so they read as raised surfaces */
+:root[data-theme='dark'] :is(.prompt, .prompt-collapsed, .tl-card, .error-state, .refine, .feature, .day-tab, .btn-soft, .share-fallback, .menu, .start-time, .theme-btn) {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0) 60%);
+  border-color: #283152;
+}
+:root[data-theme='dark'] .tl-card:hover {
+  border-color: #38436b;
+}
+
+/* selected day: sunset-tinted instead of a bright white slab */
+:root[data-theme='dark'] .day-tab[aria-selected='true'] {
+  background: linear-gradient(160deg, rgba(255, 106, 92, 0.22), rgba(255, 181, 71, 0.1));
+  border-color: rgba(255, 140, 90, 0.65);
+  color: var(--text);
+  box-shadow: 0 10px 28px -14px rgba(255, 106, 92, 0.6);
+}
+:root[data-theme='dark'] .day-tab[aria-selected='true'] .day-tab-count {
+  color: var(--muted);
+}
+
+/* disabled primary button: dim and neutral, not muddy brown */
+:root[data-theme='dark'] .btn-primary:disabled {
+  background: #232b45;
+  color: #7d85a3;
+  opacity: 1;
+}
+
+/* the paper ticket is a touch less bright at night, and casts a deeper shadow */
+:root[data-theme='dark'] .pass {
+  --paper: #efe4cf;
+  --paper-2: #e6d8bf;
+  border-color: #d9c7a6;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 24px 50px -20px rgba(0, 0, 0, 0.75),
+    0 0 60px -30px var(--from);
+}
+
+:root[data-theme='dark'] .tips {
+  background: linear-gradient(160deg, rgba(63, 214, 201, 0.1), rgba(63, 214, 201, 0.03));
+  border-color: rgba(63, 214, 201, 0.25);
+}
+
+:root[data-theme='dark'] .tl-node {
+  background: color-mix(in srgb, var(--cat) 22%, #11162a);
 }
