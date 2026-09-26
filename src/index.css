@@ -21,6 +21,9 @@
   --sun-2: #ffa62b;
   --sun: linear-gradient(120deg, var(--sun-1), var(--sun-2));
   --accent: #ec4a37;
+  /* same hues, darkened just enough for small text to pass WCAG AA (4.5:1) */
+  --accent-text: #b83220;
+  --sea-text: #0b7a73;
   --on-sun: #ffffff;
   --sea: #0f9d94;
   --ink: #171c30;
@@ -71,6 +74,8 @@
   --sun-1: #ff6a5c;
   --sun-2: #ffb547;
   --accent: #ff7a63;
+  --accent-text: #ff8a73;
+  --sea-text: #3fd6c9;
   --on-sun: #1a0c06;
   --sea: #3fd6c9;
   --ink: #eef0f8;
@@ -183,7 +188,7 @@ textarea {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 kbd {
@@ -628,7 +633,7 @@ kbd {
   box-shadow: var(--shadow-sm);
   text-align: left;
   cursor: pointer;
-  color: var(--accent);
+  color: var(--accent-text);
   transition: border-color 0.2s;
 }
 .prompt-collapsed:hover {
@@ -933,7 +938,7 @@ code {
   --paper: #f7eedf;
   --paper-2: #efe3cf;
   --paper-ink: #221b13;
-  --paper-muted: #8b7558;
+  --paper-muted: #6f5a3f;
   --perf: #d8c5a5;
   position: relative;
   display: flex;
@@ -1246,7 +1251,7 @@ code {
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 .day-tab-theme {
   font-weight: 700;
@@ -1290,6 +1295,9 @@ body.is-dragging .day-tab:not([aria-selected='true']) {
 
 /* ---------- day view ---------- */
 
+.day-view[hidden] {
+  display: none;
+}
 .day-view {
   display: flex;
   flex-direction: column;
@@ -1449,7 +1457,7 @@ body.is-dragging .day-tab:not([aria-selected='true']) {
   padding: 6px 0;
   font-size: 0.72rem;
   font-weight: 600;
-  color: var(--sea);
+  color: var(--sea-text);
 }
 
 .tl-row {
@@ -1559,7 +1567,7 @@ body.is-dragging .day-tab:not([aria-selected='true']) {
   color: var(--muted);
 }
 .cat-tag {
-  color: var(--cat);
+  color: color-mix(in srgb, var(--cat) 70%, #000);
   font-weight: 700;
 }
 .tl-details {
@@ -1575,7 +1583,7 @@ body.is-dragging .day-tab:not([aria-selected='true']) {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 700;
   font-size: 0.85rem;
   text-decoration: none;
@@ -2272,4 +2280,8 @@ body.is-dragging {
 
 :root[data-theme='dark'] .tl-node {
   background: color-mix(in srgb, var(--cat) 22%, #11162a);
+}
+
+:root[data-theme='dark'] .cat-tag {
+  color: var(--cat);
 }
