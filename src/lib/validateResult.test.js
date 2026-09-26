@@ -73,6 +73,14 @@ describe('validateTrip', () => {
     expect(res.error.code).toBe('WRONG_SHAPE')
   })
 
+  it('accepts a user-emptied trip only when allowEmpty is set', () => {
+    const emptied = { title: 't', days: [{ theme: 'a', startTime: '09:00', stops: [] }] }
+    expect(validateTripObject(emptied).ok).toBe(false)
+    const res = validateTripObject(emptied, { allowEmpty: true })
+    expect(res.ok).toBe(true)
+    expect(res.data.days[0].stops).toEqual([])
+  })
+
   it('treats the model refusing as NOT_A_TRIP, not a crash', () => {
     const res = validateTrip('{"error":"not_a_trip","message":"That is a recipe."}')
     expect(res.error.code).toBe('NOT_A_TRIP')

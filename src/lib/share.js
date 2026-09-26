@@ -51,7 +51,7 @@ export async function decodeTrip(code) {
     let bytes = fromBase64Url(code.slice(1))
     if (kind === 'z') bytes = await pipe(bytes, new DecompressionStream('deflate-raw'))
     else if (kind !== 'j') return null
-    const result = validateTripObject(JSON.parse(new TextDecoder().decode(bytes)))
+    const result = validateTripObject(JSON.parse(new TextDecoder().decode(bytes)), { allowEmpty: true })
     return result.ok ? result.data : null
   } catch {
     return null

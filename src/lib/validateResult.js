@@ -213,8 +213,12 @@ function summarise(notes) {
 /**
  * Validate an already-parsed object as a Trip. Also used for share links,
  * which are just as untrusted as model output.
+ *
+ * allowEmpty: a trip the *user* emptied (removed every stop) is still their
+ * trip - saved sessions and share links pass this. model output never does,
+ * an AI reply with zero stops is a failure.
  */
-export function validateTripObject(input) {
+export function validateTripObject(input, { allowEmpty = false } = {}) {
   const notes = { problems: [], fixed: [], dropped: [] }
 
   const refused = refusal(input)
@@ -242,7 +246,7 @@ export function validateTripObject(input) {
   const days = rawDays.map((d, i) => normDay(d, i, notes)).filter(Boolean)
   const stopCount = days.reduce((n, d) => n + d.stops.length, 0)
 
-  if (!days.length || !stopCount) {
+  if (!days.length || (!stopCount && !allowEmpty)) {
     return fail('WRONG_SHAPE', "The AI reply didn't contain any usable stops.", [
       ...notes.problems,
       ...notes.dropped,

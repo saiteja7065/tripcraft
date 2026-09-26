@@ -11,7 +11,7 @@ export function loadSession() {
     if (!raw) return null
     const saved = JSON.parse(raw)
     // treat our own old data as untrusted too - the shape may have changed since
-    const trip = saved.trip ? validateTripObject(saved.trip) : null
+    const trip = saved.trip ? validateTripObject(saved.trip, { allowEmpty: true }) : null
     return {
       input: typeof saved.input === 'string' ? saved.input : '',
       trip: trip?.ok ? trip.data : null,
