@@ -7,13 +7,13 @@ export default function ErrorState({ error, onRetry, onBack, onEdit, online = tr
   const headingRef = useRef(null)
   const [wait, setWait] = useState(0)
 
-  // move focus here so keyboard and screen reader users notice the failure
+  // Move focus to the error so keyboard and screen reader users notice it.
   useEffect(() => {
     headingRef.current?.focus()
     setWait(error?.code === 'RATE_LIMITED' ? (error.retryAfter ?? 0) : 0)
   }, [error])
 
-  // rate limited: count down instead of letting them hit retry straight into another 429
+  // When rate limited, disable Retry until the server's Retry-After has passed.
   useEffect(() => {
     if (wait <= 0) return
     const t = setTimeout(() => setWait((w) => w - 1), 1000)

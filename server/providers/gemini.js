@@ -1,7 +1,6 @@
 import { ProviderError, fromFetchError, fromHttpStatus } from './ProviderError.js'
 
-// Plain REST call, no SDK - it's one POST and this way there's nothing hidden.
-// docs: https://ai.google.dev/api/generate-content
+// Direct REST call, no SDK. Docs: https://ai.google.dev/api/generate-content
 
 export function createGemini({ apiKey, model, thinkingLevel }) {
   return {
@@ -23,7 +22,7 @@ export function createGemini({ apiKey, model, thinkingLevel }) {
               maxOutputTokens: 8192,
               responseMimeType: 'application/json',
               ...(schema && { responseSchema: schema }),
-              // gemini 3 models think by default; not every model accepts every level
+              // Gemini 3 models reason by default; supported levels vary by model.
               ...(thinkingLevel && { thinkingConfig: { thinkingLevel } }),
             },
           }),
@@ -47,7 +46,7 @@ export function createGemini({ apiKey, model, thinkingLevel }) {
         throw new ProviderError('BLOCKED', 'the model refused this request', { status: 422 })
       }
 
-      // the text can come split across parts, glue them back
+      // The reply may be split across several parts.
       const text = (candidate?.content?.parts ?? []).map((p) => p.text ?? '').join('')
       return { text, finishReason: candidate?.finishReason ?? 'UNKNOWN' }
     },

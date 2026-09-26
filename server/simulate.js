@@ -1,9 +1,8 @@
 import { mockDay, mockTrip, wait } from './providers/mock.js'
 import { ProviderError } from './providers/ProviderError.js'
 
-// Failure lab. Each scenario fakes one of the ways a real model reply goes
-// wrong, so the client handling can be tested (and demoed) on demand without
-// burning api quota or waiting for the model to misbehave by itself.
+// Failure lab: each scenario reproduces one way a model reply can go wrong,
+// so client-side handling can be exercised on demand without using API quota.
 
 export const SCENARIOS = [
   'fenced',
@@ -27,27 +26,27 @@ function good(task, payload) {
 export async function simulate(scenario, task, payload, signal) {
   switch (scenario) {
     case 'fenced':
-      // the classic: chatty preamble + markdown fence around otherwise fine json
+      // Valid JSON wrapped in prose and a markdown fence.
       return `Sure! Here's your itinerary:\n\n\`\`\`json\n${good(task, payload)}\n\`\`\`\n\nHave a great trip!`
 
     case 'partial': {
-      // parses fine but a few fields are junk - should render with warnings
+      // Parses, but some fields are invalid; should render with warnings.
       const trip = JSON.parse(good(task, payload))
       const day = trip.days ? trip.days[0] : trip
       day.startTime = 'morning'
       day.stops[0].durationMins = '2 hours'
       day.stops[1].category = 'sightseeing'
-      day.stops.splice(2, 0, { category: 'food', durationMins: 30 }) // no name -> gets dropped
+      day.stops.splice(2, 0, { category: 'food', durationMins: 30 }) // no name, should be dropped
       return JSON.stringify(trip)
     }
 
     case 'flaky':
-      // broken on the first try, fine on the repair call
+      // Invalid on the first call, valid on the repair call.
       if (task === 'repair') return good(task, payload)
       return good(task, payload).slice(0, 180)
 
     case 'malformed':
-      // looks like the reply got cut off mid-way (max tokens)
+      // Truncated output, as when the token limit is hit.
       return good(task, payload).slice(0, 180)
 
     case 'wrong-shape':
@@ -64,7 +63,7 @@ export async function simulate(scenario, task, payload, signal) {
       return good(task, payload)
 
     case 'hang':
-      // longer than the client is willing to wait
+      // Exceeds the client timeout.
       await wait(90000, signal)
       return good(task, payload)
 

@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react'
 
-// Day switcher. Each tab is also a drop target: drag a stop onto "Day 3"
-// and it moves there (see useDragSort, data-day-drop).
+// Day tabs. Each tab is also a drop target for moving a stop to that day
+// (see useDragSort and the data-day-drop attribute).
 export default function DayTabs({ days, active, onChange }) {
   const listRef = useRef(null)
 
-  // keep the active tab visible when there are more days than fit on a phone
+  // Keep the active tab in view when the tab row scrolls.
   useEffect(() => {
     listRef.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
   }, [active])

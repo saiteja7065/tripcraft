@@ -6,9 +6,9 @@ import { createRateLimiter } from './rateLimit.js'
 import { SCENARIOS, simulate } from './simulate.js'
 
 // POST /api/generate
-// Holds the key, builds the prompt, calls the model, hands back the raw text.
-// It deliberately does NOT parse or validate the reply - that happens in the
-// browser (src/lib/validateResult.js) so every failure is visible to the UI.
+// Holds the API key, builds the prompt, calls the model and returns its raw text.
+// The reply is intentionally not parsed here: validation happens in the browser
+// (src/lib/validateResult.js) so every failure mode is visible to the UI.
 
 const LLM_TIMEOUT_MS = 40_000
 const limiter = createRateLimiter({ limit: 30, windowMs: 10 * 60_000 })
@@ -83,7 +83,7 @@ export function createGenerateHandler(providers) {
       }
     }
 
-    // stop paying for a model call nobody is waiting for anymore
+    // Abort the upstream call if the client disconnects.
     const clientGone = new AbortController()
     res.on('close', () => {
       if (!res.writableFinished) clientGone.abort()
@@ -110,7 +110,7 @@ export function createGenerateHandler(providers) {
       console.log(`[generate] ${payload.task} via ${result.provider} ${Date.now() - started}ms`)
       res.json({ ...result, demo: providers.demo })
     } catch (err) {
-      if (clientGone.signal.aborted) return // nobody to answer
+      if (clientGone.signal.aborted) return
 
       const e =
         err instanceof ProviderError
@@ -120,7 +120,7 @@ export function createGenerateHandler(providers) {
             : new ProviderError('UPSTREAM', 'something went wrong talking to the model')
 
       console.warn(`[generate] ${payload.task} failed after ${Date.now() - started}ms: ${e.code} ${e.message}`)
-      // don't leak provider internals (urls, key hints) to the browser
+      // Return a generic message; provider details stay in the server log.
       res.status(e.status).json({ error: { code: e.code, message: publicMessage(e.code) } })
     }
   }

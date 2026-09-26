@@ -33,7 +33,6 @@ export default function EmptyState() {
         </article>
       ))}
 
-      {/* a tiny fake itinerary so first-time visitors see what they'll get */}
       <div className="preview-card" aria-hidden="true">
         <p className="eyebrow">Preview</p>
         <p className="preview-title">Day 1 · Forts & old city</p>

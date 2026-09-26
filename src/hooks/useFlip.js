@@ -1,13 +1,11 @@
 import { useCallback, useLayoutEffect, useRef } from 'react'
 
-// FLIP = First, Last, Invert, Play.
-// After every render we measure where each item ended up. If an item moved
-// since last time, we jump it back to where it was (transform) and let a CSS
-// transition slide it to its new spot. React just re-orders the list; this
-// makes the re-order look physical instead of teleporting.
+// FLIP (First, Last, Invert, Play) list animation.
+// After each render, items that moved are offset back to their previous position
+// with a transform, then a CSS transition animates them into place.
 //
-// Positions are relative to the list itself, so scrolling the page between
-// renders doesn't count as "moving".
+// Positions are measured relative to the list, so page scrolling isn't treated
+// as movement.
 
 export function useFlip(listRef) {
   const prev = useRef(new Map())
@@ -23,19 +21,17 @@ export function useFlip(listRef) {
     return rects
   }, [listRef])
 
-  // called by the drag code right before it drops, so the animation starts
-  // from where the item visually is (under the finger), not where it was
+  // Called by useDragSort just before a drop so the animation starts from the
+  // item's visual (dragged) position.
   const snapshot = useCallback(() => {
     prev.current = measure()
   }, [measure])
 
   useLayoutEffect(() => {
     const list = listRef.current
-    // mid-drag the items carry temporary transforms; measuring now would
-    // record those as real positions. the drop calls snapshot() anyway.
+    // Skip while dragging: items carry temporary transforms.
     if (!list || document.body.classList.contains('is-dragging')) return
-    // a hidden day (inactive tab) has no layout; forget old positions so it
-    // doesn't animate everything in from the top when it becomes visible
+    // A hidden list has no layout; reset so it doesn't animate in when shown.
     if (!list.getClientRects().length) {
       prev.current = new Map()
       return
@@ -52,8 +48,7 @@ export function useFlip(listRef) {
         if (Math.abs(dy) < 1) continue
         el.style.transition = 'none'
         el.style.transform = `translateY(${dy}px)`
-        // force the browser to apply the jump, then hand back to the css
-        // transition (see .timeline-item in index.css) to slide it home
+        // Force layout, then let the CSS transition (.timeline-item) animate back.
         el.getBoundingClientRect()
         el.style.transition = ''
         el.style.transform = ''

@@ -19,7 +19,7 @@ function DayView({ hidden, day, index, dayLabels, destination, lastChange, onlin
     onDropOnDay: onMoveToDay,
   })
 
-  // removing the focused stop would drop focus to <body>; hand it to a neighbour
+  // Move focus to a neighbouring stop so it isn't lost when the focused one is removed.
   const handleRemove = useCallback(
     (stop) => {
       const i = day.stops.findIndex((s) => s.id === stop.id)
@@ -62,7 +62,7 @@ function DayView({ hidden, day, index, dayLabels, destination, lastChange, onlin
             type="time"
             value={day.startTime}
             onChange={(e) => {
-              // time inputs can briefly be "" while typing
+              // The value is briefly empty while the user is typing.
               if (/^\d{2}:\d{2}$/.test(e.target.value)) actions.setStartTime(index, e.target.value)
             }}
           />

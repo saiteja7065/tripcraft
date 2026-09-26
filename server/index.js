@@ -6,7 +6,7 @@ import express from 'express'
 import { createGenerateHandler } from './generate.js'
 import { buildProviders } from './providers/index.js'
 
-// node 22 can read .env itself, no dotenv needed. missing file is fine.
+// Node 22 loads .env natively; a missing file is not an error.
 try {
   process.loadEnvFile()
 } catch {}
@@ -17,12 +17,11 @@ const providers = buildProviders()
 const app = express()
 
 app.disable('x-powered-by')
-app.set('trust proxy', 1) // render sits behind a proxy, needed for req.ip
+app.set('trust proxy', 1) // behind the host's proxy; needed for a correct req.ip
 app.use(compression())
 app.use(express.json({ limit: '64kb' }))
 
-// cheap endpoint the client pings on load - wakes a sleeping render instance
-// while the user is still typing, and tells the ui if we're in demo mode
+// Pinged on page load: wakes a sleeping instance early and reports demo mode.
 app.get('/api/health', (req, res) => {
   res.set('Cache-Control', 'no-store')
   res.json({ ok: true, demo: providers.demo, providers: providers.list.map((p) => p.name) })
@@ -35,8 +34,7 @@ app.use('/api', (req, res) => {
 })
 
 if (existsSync(dist)) {
-  // hashed assets never change, cache them hard. index.html must always be fresh
-  // or users get stuck on an old build after a deploy.
+  // Hashed assets are immutable; index.html is never cached so deploys take effect.
   app.use(
     '/assets',
     express.static(join(dist, 'assets'), { immutable: true, maxAge: '1y', fallthrough: false }),
@@ -50,7 +48,7 @@ if (existsSync(dist)) {
   app.get('/', (req, res) => res.send('No build found. Run `npm run build` or use `npm run dev`.'))
 }
 
-// body-parser errors (bad json, too large) + anything unexpected
+// Malformed or oversized bodies, and any unexpected error.
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err)
   const status = err.status || err.statusCode || 500

@@ -5,9 +5,8 @@ import { IconSparkle } from './Icons.jsx'
 
 const SUGGESTIONS = ['Make it more relaxed', 'More local food', 'Add something for the evening']
 
-// "Refine just this day" - a follow-up prompt that edits part of the result
-// instead of regenerating the whole trip. Has its own request state so a slow
-// refine on day 2 doesn't block editing day 1.
+// Follow-up prompt that rewrites a single day instead of regenerating the trip.
+// Has its own request state, so other days stay editable while it runs.
 export default function RefineDay({ dayNumber, onRefine, online }) {
   const [open, setOpen] = useState(false)
   const [text, setText] = useState('')

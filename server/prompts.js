@@ -1,8 +1,7 @@
 import { CATEGORIES, LIMITS, NOT_A_TRIP } from '../src/types/result.js'
 
-// Prompts are split per task instead of one giant prompt. The first call only
-// plans the trip; if the output comes back broken, a second smaller call only
-// fixes the json. Cheaper on tokens and easier to debug.
+// One prompt per task rather than a single large prompt: the first call plans
+// the trip, and only if its output is invalid does a smaller call repair it.
 
 const STOP_SHAPE = `{
   "name": string,            // a real, specific place or activity, max ${LIMITS.name} chars
@@ -50,8 +49,8 @@ ${RULES}`,
   }
 }
 
-// second attempt when the first reply didn't parse or had the wrong shape.
-// we send back what went wrong so the model fixes that instead of starting over.
+// Repair pass: the validator's findings are sent back so the model fixes those
+// specific problems instead of regenerating from scratch.
 export function repairPrompt(input, badOutput, problems) {
   const list = problems.length ? problems.map((p) => `- ${p}`).join('\n') : '- the reply was not valid JSON'
   return {
@@ -82,7 +81,7 @@ Return the corrected trip as JSON. If the previous reply is unusable, plan the t
   }
 }
 
-// refine a single day without touching the rest of the trip
+// Rewrites one day and leaves the rest of the trip untouched.
 export function refineDayPrompt({ destination, dayNumber, day, instruction, otherStops }) {
   return {
     system: `You edit one day of an existing travel itinerary and reply in strict JSON.
@@ -108,8 +107,8 @@ ${instruction}
   }
 }
 
-// gemini can enforce a schema on its side. we still validate on the client,
-// this just makes a bad reply less likely.
+// Gemini can enforce this schema server-side. The client still validates;
+// the schema only reduces how often a bad reply is produced.
 const stopSchema = {
   type: 'OBJECT',
   properties: {

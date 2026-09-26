@@ -1,9 +1,8 @@
 import { validateTripObject } from './validateResult.js'
 
-// Share a trip with no backend storage: the whole itinerary is compressed
-// into the url hash. The hash never gets sent to the server, and anyone who
-// opens the link sees the same plan. Decoded links go through the same
-// validator as model output - a url is user input, it can't be trusted.
+// Share links without server storage: the trip is compressed into the URL hash,
+// which is never sent to the server. Decoded links are validated like model
+// output, since a URL is untrusted input.
 
 const PARAM = 'trip='
 
@@ -24,7 +23,7 @@ async function pipe(bytes, stream) {
   return new Uint8Array(await new Response(out).arrayBuffer())
 }
 
-// strip our ids - they get regenerated on load and just bloat the url
+// Ids are regenerated on load, so they're left out of the link.
 function slim(trip) {
   return {
     title: trip.title,
@@ -40,7 +39,7 @@ function slim(trip) {
 
 export async function encodeTrip(trip) {
   const bytes = new TextEncoder().encode(JSON.stringify(slim(trip)))
-  // older browsers without CompressionStream still get a (longer) working link
+  // Uncompressed fallback for browsers without CompressionStream.
   if (typeof CompressionStream === 'undefined') return `j${toBase64Url(bytes)}`
   return `z${toBase64Url(await pipe(bytes, new CompressionStream('deflate-raw')))}`
 }

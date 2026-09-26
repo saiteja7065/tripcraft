@@ -1,5 +1,5 @@
-// crypto.randomUUID only exists in secure contexts (https / localhost).
-// Opening the dev server from a phone over LAN is plain http, so fall back.
+// crypto.randomUUID is only available in secure contexts (HTTPS/localhost),
+// so fall back when the app is opened over plain HTTP (e.g. a LAN address).
 let counter = 0
 
 export function makeId(prefix = 'id') {

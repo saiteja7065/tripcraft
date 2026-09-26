@@ -1,5 +1,4 @@
-// Used when no api key is configured, and by the failure lab.
-// Lets anyone run `npm start` and click around without signing up for anything.
+// Sample data used when no API key is configured, and by the failure lab.
 
 const DAY_TEMPLATES = [
   {

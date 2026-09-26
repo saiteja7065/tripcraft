@@ -1,5 +1,4 @@
-// What to tell the user for each failure. Kept in one place so every screen
-// (full error state, inline day errors, toasts) words things the same way.
+// User-facing copy for each error code, shared by every screen that shows errors.
 
 const COPY = {
   OFFLINE: {
@@ -74,7 +73,7 @@ const FALLBACK = { title: 'Something went wrong', hint: 'Please try again.', ret
 export function describeError(error) {
   const copy = COPY[error?.code] ?? FALLBACK
   let hint = copy.hint
-  // the model's own explanation is more useful than our generic line
+  // Prefer the model's own explanation when it gives one.
   if (error?.code === 'NOT_A_TRIP' && error.message) hint = `${error.message} ${copy.hint}`
   if (error?.code === 'BAD_INPUT' && error.message) hint = error.message
   if (error?.code === 'RATE_LIMITED' && error.retryAfter) {

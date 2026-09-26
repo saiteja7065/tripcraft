@@ -2,15 +2,14 @@ import { useMemo } from 'react'
 import { destinationPalette, hash } from '../lib/palette.js'
 import { IconPlane } from './Icons.jsx'
 
-// Barcode drawn from a seed so every trip gets its own (and the same trip
-// always gets the same one). Purely decorative.
+// Decorative barcode, deterministic for a given seed.
 function Barcode({ seed }) {
   const bars = useMemo(() => {
     let x = seed || 1
     const out = []
     let pos = 0
     for (let i = 0; i < 38; i++) {
-      x = (x * 1103515245 + 12345) >>> 0 // tiny LCG, good enough for stripes
+      x = (x * 1103515245 + 12345) >>> 0 // linear congruential generator
       const w = 1 + (x % 3)
       out.push({ x: pos, w })
       pos += w + 1 + ((x >> 8) % 2)
@@ -27,8 +26,7 @@ function Barcode({ seed }) {
   )
 }
 
-// The trip header, styled as a printed paper boarding pass. The stripe and
-// numbers take the destination's colours, so each trip looks a bit different.
+// Trip summary styled as a boarding pass; accent colours derive from the destination.
 export default function TripHero({ trip, meta, headingRef }) {
   const place = trip.destination || 'Your trip'
   const seed = useMemo(() => hash(`${place}|${trip.title}`), [place, trip.title])

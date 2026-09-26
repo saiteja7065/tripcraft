@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import RouteArt from './RouteArt.jsx'
 
-// Being honest about slowness beats a spinner that looks the same at 2s and
-// at 40s. The message changes over time so people know whether to wait.
+// The message changes with elapsed time, so a slow response can be told apart
+// from a stuck one.
 
 function message(stage, seconds) {
   if (stage === 'repairing') return ["The AI's reply came back broken", 'Asking it to fix its answer...']
@@ -44,7 +44,7 @@ export default function LoadingState({ stage, startedAt, onCancel }) {
         </div>
       </div>
 
-      {/* rough shape of what's coming, so the layout doesn't jump when it lands */}
+      {/* Skeleton matching the final layout to avoid a layout shift. */}
       <div className="skeleton" aria-hidden="true">
         <div className="sk sk-pass" />
         <div className="sk-tabs">

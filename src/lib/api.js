@@ -1,7 +1,7 @@
 import { validateDay, validateTrip } from './validateResult.js'
 
-// The only file in the frontend that talks to the network.
-// It never calls the model directly - only our own /api, which holds the key.
+// The only module that makes network requests. It calls this app's /api,
+// never a model provider directly, so the API key stays on the server.
 
 const REQUEST_TIMEOUT_MS = 45_000
 
@@ -15,9 +15,9 @@ export class AppError extends Error {
   }
 }
 
-// failures where just trying again the same way has a real chance of working
+// Errors where an identical retry has a reasonable chance of succeeding.
 const TRANSIENT = new Set(['NETWORK', 'SERVER'])
-// bad model output - worth one "please fix this" round trip before giving up
+// Invalid model output: worth one repair request before giving up.
 const REPAIRABLE = new Set(['MALFORMED_JSON', 'WRONG_SHAPE', 'EMPTY_RESPONSE'])
 
 const isOffline = () => typeof navigator !== 'undefined' && navigator.onLine === false
@@ -35,8 +35,7 @@ function sleep(ms, signal) {
 async function postOnce(path, body, { signal, timeoutMs }) {
   if (isOffline()) throw new AppError('OFFLINE', "You're offline.")
 
-  // one controller for both "user cancelled" and "took too long", but we
-  // remember which one fired so the ui can say the right thing
+  // One controller for both cancellation and timeout; `timedOut` records which fired.
   const controller = new AbortController()
   let timedOut = false
   const timer = setTimeout(() => {
@@ -65,13 +64,12 @@ async function postOnce(path, body, { signal, timeoutMs }) {
     signal?.removeEventListener('abort', onAbort)
   }
 
-  // a sleeping/restarting host can answer with an html error page, so don't
-  // assume the body is json just because we asked for it
+  // A restarting host may return an HTML error page, so JSON isn't assumed.
   let data = null
   try {
     data = await res.json()
   } catch {
-    // handled below
+    // non-JSON body, handled below
   }
 
   if (!res.ok) {
@@ -88,8 +86,8 @@ async function postOnce(path, body, { signal, timeoutMs }) {
   return data
 }
 
-// one quiet retry for flaky networks / a host that's still waking up.
-// timeouts and cancels are not retried - the user is already waiting too long.
+// One automatic retry for transient network/server errors. Timeouts and
+// cancellations are not retried.
 async function post(path, body, { signal, timeoutMs = REQUEST_TIMEOUT_MS, onRetry } = {}) {
   try {
     return await postOnce(path, body, { signal, timeoutMs })
@@ -102,12 +100,12 @@ async function post(path, body, { signal, timeoutMs = REQUEST_TIMEOUT_MS, onRetr
 }
 
 /**
- * Generate a trip, validate it, and if the reply is broken ask the model once
- * to fix its own output. `onStage` lets the loading screen say what's going on.
+ * Generates a trip and validates it. If the reply is invalid, asks the model once
+ * to repair it. `onStage` reports progress to the loading screen.
  */
 export async function requestTrip(input, { signal, onStage, simulate } = {}) {
   if (simulate === 'network') {
-    // failure lab: fake a dropped connection without touching the server
+    // Failure lab: simulate a dropped connection on the client.
     await sleep(700, signal)
     throw new AppError('NETWORK', "Couldn't reach the server.")
   }
@@ -169,7 +167,7 @@ export async function requestDayRefine({ trip, dayIndex, instruction }, { signal
   return { day: result.data, warnings: result.warnings }
 }
 
-/** Fire-and-forget ping so a sleeping server starts waking up early. */
+/** Health check sent on load; also wakes a sleeping server. */
 export async function warmUp() {
   try {
     const res = await fetch('/api/health', { signal: AbortSignal.timeout?.(60_000) })

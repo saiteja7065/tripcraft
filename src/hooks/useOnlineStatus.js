@@ -9,9 +9,8 @@ function subscribe(cb) {
   }
 }
 
-// navigator.onLine can say "online" on a network with no real internet,
-// so this is only used for the obvious case. real failures still come
-// through the fetch error handling.
+// navigator.onLine only detects an obvious disconnect; other network failures
+// are still caught by the fetch error handling.
 export function useOnlineStatus() {
   return useSyncExternalStore(
     subscribe,

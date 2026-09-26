@@ -15,7 +15,6 @@ export default function PromptInput({ value, onChange, onSubmit, onCancel, loadi
   const tooShort = trimmed.length < MIN_CHARS
   const nearLimit = value.length > LIMITS.input * 0.9
 
-  // once a trip exists the input shrinks to one line so the plan gets the screen
   if (collapsed) {
     return (
       <button type="button" className="prompt-collapsed" onClick={onExpand} aria-label={`Edit your request: ${value}`}>
@@ -35,7 +34,7 @@ export default function PromptInput({ value, onChange, onSubmit, onCancel, loadi
   }
 
   function onKeyDown(e) {
-    // ctrl/cmd + enter to go, plain enter still makes a new line
+    // Ctrl/Cmd+Enter submits; Enter alone inserts a newline.
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submit(e)
   }
 

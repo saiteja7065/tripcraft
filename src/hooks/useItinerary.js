@@ -1,9 +1,8 @@
 import { useCallback, useMemo, useReducer } from 'react'
 
-// All edits to the trip go through this reducer, so every change is a plain
-// function of (state, action) - easy to test, and undo is just "keep the old
-// trip around". Stops are addressed by id, never by index, so an action
-// dispatched from a slightly stale render can't hit the wrong stop.
+// All trip edits go through this pure reducer, which keeps them testable and
+// makes undo a history of previous trips. Stops are addressed by id rather than
+// index, so an action dispatched from a stale render can't hit the wrong stop.
 
 const HISTORY_LIMIT = 30
 
@@ -33,7 +32,6 @@ function editTrip(trip, action) {
     }
 
     case 'move': {
-      // one step up or down inside the same day
       const at = findStop(trip, action.stopId)
       if (!at) return trip
       const to = at.s + action.offset
@@ -48,7 +46,7 @@ function editTrip(trip, action) {
     }
 
     case 'reorder': {
-      // drag and drop: put the stop at an exact position in its own day
+      // Drag and drop: move to an exact index within the same day.
       const at = findStop(trip, action.stopId)
       if (!at) return trip
       const stops = trip.days[at.d].stops
@@ -63,7 +61,7 @@ function editTrip(trip, action) {
     }
 
     case 'moveToDay': {
-      // append to the end of another day - the user can nudge it from there
+      // Appends to the end of the target day.
       const at = findStop(trip, action.stopId)
       if (!at || at.d === action.dayIndex || !trip.days[action.dayIndex]) return trip
       const stop = trip.days[at.d].stops[at.s]
@@ -78,8 +76,8 @@ function editTrip(trip, action) {
     }
 
     case 'replaceDay': {
-      // by id, not index: if a whole new trip was generated while this day was
-      // being refined, the old day id is gone and the late reply is ignored
+      // Matched by id: if a new trip was generated during the refine, the old
+      // id no longer exists and the late reply is ignored.
       if (!trip.days.some((d) => d.id === action.dayId)) return trip
       return withDays(
         trip,
@@ -102,8 +100,7 @@ function editTrip(trip, action) {
 export function itineraryReducer(state, action) {
   switch (action.type) {
     case 'load':
-      // keepHistory: opening a share link shouldn't wipe the user's own trip
-      // for good - it goes onto the undo stack instead
+      // keepHistory: the previous trip is pushed onto the undo stack (share links).
       return {
         trip: action.trip,
         past: action.keepHistory && state.trip ? [...state.past, state.trip].slice(-HISTORY_LIMIT) : [],
@@ -121,7 +118,7 @@ export function itineraryReducer(state, action) {
     default: {
       if (!state.trip) return state
       const trip = editTrip(state.trip, action)
-      if (trip === state.trip) return state // nothing changed, don't pollute undo history
+      if (trip === state.trip) return state // no-op: don't add an undo entry
       return {
         trip,
         past: [...state.past, state.trip].slice(-HISTORY_LIMIT),

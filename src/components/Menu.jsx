@@ -1,8 +1,8 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 
-// A small accessible dropdown: button + role="menu".
-// Arrow keys move, Enter/Space picks, Escape or a click outside closes and
-// returns focus to the button. Opens upwards when there's no room below.
+// Accessible dropdown menu (button + role="menu"). Arrow keys move between items,
+// Escape or an outside click closes it and returns focus to the button. Opens
+// upwards when there isn't room below.
 
 export default function Menu({ label, icon, items, className = '' }) {
   const [open, setOpen] = useState(false)

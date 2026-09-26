@@ -1,7 +1,5 @@
-// Times are derived, not stored. The model gives a start time for the day and
-// a duration per stop; clock times are worked out from the current order.
-// That way reordering or removing a stop re-times the whole day for free,
-// instead of leaving "14:00" sitting above "09:30".
+// Clock times are derived, not stored: each day has a start time and each stop a
+// duration, so reordering or removing a stop re-times the rest of the day.
 
 export const TRAVEL_BUFFER_MINS = 20
 const LATE_NIGHT = 22 * 60
@@ -42,7 +40,7 @@ export function scheduleDay(day) {
     start,
     end,
     busyMins: day.stops.reduce((n, s) => n + s.durationMins, 0),
-    // runs past 10pm, or past midnight - worth a nudge in the ui
+    // Flag days that run past 10pm.
     packed: end > LATE_NIGHT,
   }
 }

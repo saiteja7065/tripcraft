@@ -1,6 +1,5 @@
-// Every destination gets its own sunset. The name is hashed to pick one of a
-// few hand-picked gradients - picked by hand because fully random hues landed
-// on muddy greens that didn't look like travel at all. Same name, same card.
+// Destination accent colours. The name is hashed to pick one of a fixed set of
+// gradients, so a destination always gets the same colours and all stay on-brand.
 
 const PALETTES = [
   ['#ff5a4e', '#ffa62b'], // coral to amber

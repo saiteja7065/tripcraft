@@ -1,6 +1,5 @@
-// Tiny in-memory limiter, per ip. The point isn't security, it's making sure
-// one person hammering the button can't burn the whole free-tier quota for
-// everyone else (and the evaluators). Resets on restart, which is fine here.
+// Per-IP sliding-window limiter, in memory. Protects the shared free-tier quota
+// from a single client; it resets on restart, which is acceptable here.
 
 export function createRateLimiter({ limit, windowMs }) {
   const hits = new Map()
@@ -16,7 +15,7 @@ export function createRateLimiter({ limit, windowMs }) {
     recent.push(now)
     hits.set(key, recent)
 
-    // keep the map from growing forever on a long-running instance
+    // Prune idle entries so the map can't grow without bound.
     if (hits.size > 5000) {
       for (const [k, times] of hits) {
         if (times.every((t) => now - t >= windowMs)) hits.delete(k)

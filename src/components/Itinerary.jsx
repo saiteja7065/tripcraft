@@ -28,18 +28,17 @@ export default function Itinerary({
     if (focusOnMount) headingRef.current?.focus()
   }, [focusOnMount])
 
-  // any edit makes an old share link out of date
+  // A previously generated link is stale after any edit.
   useEffect(() => setShareUrl(null), [trip])
 
-  // undo can bring back fewer days than the tab we're on
+  // Undo can restore fewer days than the active tab index.
   const day = Math.min(active, trip.days.length - 1)
 
-  // depends on the count only, so an edit doesn't hand every stop a new array
+  // Depends on the count only, so edits don't create a new array for every stop.
   const dayCount = trip.days.length
   const dayLabels = useMemo(() => Array.from({ length: dayCount }, (_, i) => `Day ${i + 1}`), [dayCount])
 
-  // read the trip through a ref so this callback stays the same between
-  // edits - otherwise every (memoised) day view re-renders on every change
+  // Read through a ref so the callback stays stable and memoised day views don't re-render.
   const tripRef = useRef(trip)
   useEffect(() => {
     tripRef.current = trip
@@ -61,8 +60,8 @@ export default function Itinerary({
     try {
       const url = await buildShareUrl(trip)
       if (url.length > 16000) onToast({ message: 'Heads up: this link is very long and may not open everywhere.' })
-      // native share sheet on phones, clipboard on desktop, and if both are
-      // blocked just show the link so it can be copied by hand
+      // Native share sheet on touch devices, clipboard elsewhere, and a
+      // visible read-only field if both are unavailable.
       if (navigator.share && matchMedia('(pointer: coarse)').matches) {
         await navigator.share({ title: trip.title, url }).catch(() => {})
         return
@@ -76,8 +75,7 @@ export default function Itinerary({
 
   return (
     <section className="itinerary" aria-labelledby="trip-title">
-      {/* two columns on desktop: the ticket + actions stay pinned on the left while
-          the days scroll on the right. on mobile both wrappers are display:contents */}
+      {/* Two columns on desktop; on smaller screens both wrappers use display: contents. */}
       <div className="trip-side">
         <TripHero trip={trip} meta={meta} headingRef={headingRef} />
 
@@ -128,9 +126,8 @@ export default function Itinerary({
       <div className="trip-main">
         <DayTabs days={trip.days} active={day} onChange={setActive} />
 
-        {/* every day stays mounted and only the active one is shown, so an
-            "ask AI to tweak" still running on day 2 isn't cancelled by
-            switching to day 3 */}
+        {/* All days stay mounted and inactive ones are hidden, so an in-flight
+            refine request isn't cancelled by switching tabs. */}
         {trip.days.map((d, i) => (
           <DayView
             key={d.id}

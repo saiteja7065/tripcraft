@@ -1,4 +1,4 @@
-// Small inline icons - a whole icon library for ~25 glyphs isn't worth the bytes.
+// Inline SVG icons, to avoid shipping an icon library for a couple of dozen glyphs.
 
 function Svg({ children, size = 18, ...rest }) {
   return (
@@ -47,7 +47,6 @@ export const IconClock = (p) => <Svg {...p}><circle cx="12" cy="12" r="9" /><pat
 export const IconEdit = (p) => <Svg {...p}><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" /></Svg>
 export const IconArrowRight = (p) => <Svg {...p}><path d="M5 12h14M13 5l7 7-7 7" /></Svg>
 
-// category glyphs for the timeline nodes
 export const CATEGORY_ICONS = {
   sight: (p) => <Svg {...p}><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6" /></Svg>,
   food: (p) => <Svg {...p}><path d="M7 2v8a2 2 0 002 2v10M5 2v6M9 2v6M17 22V2c-2 1.5-3 4-3 7s1 4 3 4" /></Svg>,

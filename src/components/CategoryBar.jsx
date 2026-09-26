@@ -1,8 +1,7 @@
 import { CATEGORY_LABEL } from './StopCard.jsx'
 import { formatDuration } from '../lib/schedule.js'
 
-// How the day's time splits by category - a quick "is this day all museums?"
-// read without scanning every stop.
+// Share of the day's time per category.
 export default function CategoryBar({ stops }) {
   const total = stops.reduce((n, s) => n + s.durationMins, 0)
   if (!total) return null

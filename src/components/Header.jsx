@@ -4,7 +4,7 @@ import { IconMoon, IconSun } from './Icons.jsx'
 const THEME_KEY = 'tripcraft:theme'
 
 function readTheme() {
-  // index.html already picked one before first paint, just reuse it
+  // Set by an inline script in index.html before first paint.
   return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
 }
 
@@ -39,7 +39,7 @@ export default function Header({ demo, onHome }) {
     try {
       localStorage.setItem(THEME_KEY, next)
     } catch {
-      // fine, it just won't be remembered
+      // Storage unavailable; the choice just isn't persisted.
     }
   }
 

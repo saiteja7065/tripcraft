@@ -1,19 +1,19 @@
 import { CATEGORIES, DEFAULT_DURATION, DEFAULT_START, LIMITS, NOT_A_TRIP } from '../types/result.js'
 import { makeId } from './id.js'
 
-// Everything the model sends goes through here before React ever sees it.
+// Every model reply passes through here before it reaches React.
 //
-// Two kinds of problems:
-//  - fatal: not json, empty, no days, nothing usable -> error state (and one repair attempt)
-//  - fixable: a missing note, a weird category, "2 hours" instead of 120 -> we patch it,
-//    keep going, and tell the user what we cleaned up
+// Two classes of problem:
+//  - fatal: not JSON, empty, no days, nothing usable -> error (after one repair attempt)
+//  - fixable: missing note, unknown category, "2 hours" instead of 120 -> corrected,
+//    and reported to the user as a warning
 //
-// The idea is to reject what we can't trust and repair what's obviously fine,
-// instead of throwing away a whole good itinerary because one field is off.
+// Rejecting a whole itinerary because of one bad field would be worse UX than
+// correcting the field and saying so.
 
 const fail = (code, message, details = []) => ({ ok: false, error: { code, message, details } })
 
-/** Pull a json value out of whatever text the model gave us. */
+/** Extracts a JSON value from the model's text reply. */
 export function extractJson(raw) {
   if (typeof raw !== 'string' || !raw.trim()) {
     return fail('EMPTY_RESPONSE', 'The AI sent back an empty reply.')
@@ -22,11 +22,11 @@ export function extractJson(raw) {
   const text = raw.replace(/^﻿/, '').trim()
   const attempts = [text]
 
-  // ```json ... ``` - models love wrapping json in markdown even when told not to
+  // Markdown code fences, which models often add despite instructions.
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i)
   if (fenced) attempts.push(fenced[1].trim())
 
-  // "Sure! Here's your trip: {...} Enjoy!" - take the outermost braces
+  // Surrounding prose: take the outermost braces.
   const first = text.indexOf('{')
   const last = text.lastIndexOf('}')
   if (first !== -1 && last > first) attempts.push(text.slice(first, last + 1))
@@ -175,7 +175,7 @@ function normDay(raw, index, notes) {
   }
 }
 
-// the model saying "this isn't a trip" is a valid, expected answer - not a crash
+// The model declining ("not a trip") is an expected answer, not a failure.
 function refusal(value) {
   if (value && typeof value === 'object' && !Array.isArray(value) && value.error) {
     const message = cleanStr(value.message, 200)
@@ -186,7 +186,7 @@ function refusal(value) {
   return null
 }
 
-// be a little forgiving about wrappers: [days...] or { "itinerary": { days } }
+// Accept common wrappers: a bare [days] array or a single wrapping key.
 function unwrap(value, notes) {
   if (Array.isArray(value)) {
     notes.fixed.push('reply was a bare list of days')
@@ -211,12 +211,10 @@ function summarise(notes) {
 }
 
 /**
- * Validate an already-parsed object as a Trip. Also used for share links,
- * which are just as untrusted as model output.
+ * Validates a parsed object as a Trip. Also used for share links and saved sessions.
  *
- * allowEmpty: a trip the *user* emptied (removed every stop) is still their
- * trip - saved sessions and share links pass this. model output never does,
- * an AI reply with zero stops is a failure.
+ * allowEmpty: accept a trip with no stops. Set for user data (a user may remove
+ * every stop); never for model output, where zero stops is a failure.
  */
 export function validateTripObject(input, { allowEmpty = false } = {}) {
   const notes = { problems: [], fixed: [], dropped: [] }
@@ -253,7 +251,7 @@ export function validateTripObject(input, { allowEmpty = false } = {}) {
       'every day needs a "stops" array of objects with at least a "name"',
     ].slice(0, 10))
   }
-  // a couple of broken days out of many - keep the good ones but say so
+  // Some days were unusable: keep the valid ones and report it.
   if (notes.problems.length) notes.fixed.unshift(`Ignored ${notes.problems.length} malformed day(s)`)
 
   const destination = cleanStr(value.destination, LIMITS.destination)
@@ -273,14 +271,14 @@ export function validateTripObject(input, { allowEmpty = false } = {}) {
   }
 }
 
-/** Raw model text -> Trip, or a typed error the UI knows how to show. */
+/** Model text -> Trip, or a typed error the UI can display. */
 export function validateTrip(raw) {
   const parsed = extractJson(raw)
   if (!parsed.ok) return parsed
   return validateTripObject(parsed.value)
 }
 
-/** Same idea for a single day coming back from "refine this day". */
+/** Validates a single day returned by a refine request. */
 export function validateDay(raw, index = 0) {
   const parsed = extractJson(raw)
   if (!parsed.ok) return parsed
@@ -289,7 +287,7 @@ export function validateDay(raw, index = 0) {
   if (refused) return refused
 
   let value = parsed.value
-  // some models answer with a full trip or { day: {...} } even when asked for one day
+  // Some models return a full trip or { day } even when asked for a single day.
   if (value?.days?.length === 1) value = value.days[0]
   else if (value?.day && typeof value.day === 'object') value = value.day
 

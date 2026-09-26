@@ -1,7 +1,6 @@
 import { fromFetchError, fromHttpStatus } from './ProviderError.js'
 
-// Groq and OpenRouter both speak the OpenAI chat format, so one adapter
-// covers both - only the base url, key and model change.
+// Groq and OpenRouter share the OpenAI chat format; only the base URL differs.
 
 const BASE_URLS = {
   groq: 'https://api.groq.com/openai/v1',
@@ -23,12 +22,10 @@ export function createOpenAICompatible(name, { apiKey, model, reasoningEffort })
             model,
             temperature: 0.7,
             max_tokens: 8192,
-            // json mode - no schema enforcement here, just "valid json".
-            // wrong shapes can still come through, the client validator catches those.
+            // JSON mode guarantees syntax, not shape; the client validator checks the shape.
             response_format: { type: 'json_object' },
-            // reasoning models (gpt-oss) think before answering. "low" was ~3x
-            // faster and ~3x fewer tokens in testing with no drop in quality,
-            // and tokens matter a lot on groq's 8k tokens/min free tier
+            // For reasoning models. "low" measured ~3x faster and ~3x fewer tokens
+            // with no visible quality loss, which matters under a tokens/min limit.
             ...(reasoningEffort && { reasoning_effort: reasoningEffort }),
             messages: [
               { role: 'system', content: system },

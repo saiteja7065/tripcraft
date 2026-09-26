@@ -1,7 +1,6 @@
 /*
-  Tripcraft - "sunset journey"
-  warm paper by day, night sky by night, sunset gradient for anything that
-  means "go", sea-teal for routes. mobile first; wider screens at the bottom.
+  Tripcraft styles. Mobile first; wider breakpoints are at the end of the file.
+  Colours are tokens on :root, overridden for [data-theme='dark'].
 */
 
 :root {
@@ -21,14 +20,14 @@
   --sun-2: #ffa62b;
   --sun: linear-gradient(120deg, var(--sun-1), var(--sun-2));
   --accent: #ec4a37;
-  /* same hues, darkened just enough for small text to pass WCAG AA (4.5:1) */
+  /* Darker variants for small text, meeting WCAG AA contrast (4.5:1). */
   --accent-text: #b83220;
   --sea-text: #0b7a73;
   --on-sun: #ffffff;
   --sea: #0f9d94;
   --ink: #171c30;
   --on-ink: #fbf7f1;
-  /* "night" cards (loading, preview) stay dark in both themes */
+  /* Loading and preview cards stay dark in both themes. */
   --night: #171c30;
   --on-night: #f6f2ea;
   --night-border: transparent;
@@ -206,7 +205,7 @@ kbd {
   isolation: isolate;
 }
 
-/* sunset glow + faint "map" dot grid behind everything */
+/* Background glow and dot grid. */
 .backdrop {
   position: fixed;
   inset: 0;
@@ -517,7 +516,7 @@ kbd {
     opacity: 0;
   }
 }
-/* uses `translate`, not `transform`, so it never fights the drag/FLIP transforms */
+/* Uses `translate` rather than `transform` so it doesn't conflict with drag/FLIP transforms. */
 @keyframes rise {
   from {
     opacity: 0;
@@ -560,7 +559,7 @@ kbd {
   border: none;
   border-radius: var(--r-lg);
   background: transparent;
-  font-size: 17px; /* >= 16 or ios zooms on focus */
+  font-size: 17px; /* below 16px, iOS zooms in on focus */
   line-height: 1.5;
 }
 .prompt textarea:focus {
@@ -945,7 +944,7 @@ code {
   flex-direction: column;
   border-radius: var(--r-xl);
   color: var(--paper-ink);
-  /* paper: soft light from the top left + a very faint horizontal grain */
+  /* Paper texture: soft highlight plus a faint horizontal grain. */
   background:
     radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, 0.7), transparent 55%),
     repeating-linear-gradient(0deg, rgba(120, 90, 50, 0.028) 0 1px, transparent 1px 3px),
@@ -957,7 +956,7 @@ code {
     0 22px 44px -24px rgba(80, 50, 20, 0.45);
   overflow: hidden;
 }
-/* the printed colour stripe down the left edge */
+/* Colour stripe along the left edge. */
 .pass::after {
   content: '';
   position: absolute;
@@ -1043,7 +1042,7 @@ code {
   position: relative;
   z-index: 1;
   margin-top: 6px;
-  padding-right: 70px; /* keep clear of the stamp */
+  padding-right: 70px; /* clear of the stamp */
   font-weight: 600;
   color: color-mix(in srgb, var(--paper-ink) 75%, transparent);
 }
@@ -1063,7 +1062,7 @@ code {
   background: color-mix(in srgb, var(--from) 12%, transparent);
 }
 
-/* rubber stamp, slightly crooked, like it was inked by hand */
+/* Stamp mark. */
 .pass-stamp {
   position: absolute;
   right: 18px;
@@ -1093,7 +1092,7 @@ code {
   letter-spacing: 0.04em;
 }
 
-/* the tear-off stub: dashed perforation with two notches cut out */
+/* Tear-off stub: dashed perforation with notches. */
 .pass-stub {
   position: relative;
   display: flex;
@@ -1276,7 +1275,7 @@ code {
 .day-tab[aria-selected='true'] .day-tab-count {
   color: color-mix(in srgb, var(--on-ink) 65%, transparent);
 }
-/* while dragging, every other day becomes an obvious drop target */
+/* While dragging, other days are highlighted as drop targets. */
 body.is-dragging .day-tab:not([aria-selected='true']) {
   border-style: dashed;
   border-color: var(--sun-1);
@@ -1400,7 +1399,7 @@ body.is-dragging .day-tab:not([aria-selected='true']) {
   font-weight: 600;
 }
 
-/* category colour for every place that needs it */
+/* Category colour tokens. */
 .cat-sight { --cat: var(--c-sight); }
 .cat-food { --cat: var(--c-food); }
 .cat-activity { --cat: var(--c-activity); }
@@ -1424,7 +1423,7 @@ body.is-dragging .day-tab:not([aria-selected='true']) {
   display: flex;
   flex-direction: column;
 }
-/* the route line running through every node */
+/* Vertical route line through the timeline nodes. */
 .timeline::before {
   content: '';
   position: absolute;
@@ -1523,7 +1522,7 @@ body.is-dragging .day-tab:not([aria-selected='true']) {
     border-color 0.2s;
 }
 .tl-card::before {
-  /* thin category stripe on the card's left edge */
+  /* Category stripe on the card's left edge. */
   content: '';
   position: absolute;
   left: -1px;
@@ -1601,7 +1600,7 @@ body.is-dragging .day-tab:not([aria-selected='true']) {
 }
 .drag-handle {
   cursor: grab;
-  touch-action: none; /* let the finger drag instead of scrolling the page */
+  touch-action: none; /* drag instead of scrolling the page on touch */
 }
 .drag-handle:active {
   cursor: grabbing;
@@ -1625,7 +1624,7 @@ body.is-dragging .day-tab:not([aria-selected='true']) {
   }
 }
 
-/* drag state */
+/* Drag state. */
 body.is-dragging {
   cursor: grabbing;
   user-select: none;
@@ -1635,7 +1634,7 @@ body.is-dragging {
   z-index: 20; /* above the sticky day tabs */
   transition: none;
   animation: none;
-  /* so elementFromPoint sees what's *under* the card (a day tab) */
+  /* Lets elementFromPoint find the day tab under the dragged card. */
   pointer-events: none;
 }
 .timeline-item.dragging .tl-card {
@@ -1997,9 +1996,9 @@ body.is-dragging {
   }
 }
 
-/* ---------- desktop: use the width ---------- */
+/* ---------- desktop ---------- */
 
-/* mobile/tablet: the column wrappers don't exist as boxes, tips go last */
+/* Below desktop the column wrappers don't generate boxes; tips go last. */
 .trip-side,
 .trip-main {
   display: contents;
@@ -2022,7 +2021,7 @@ body.is-dragging {
     padding-right: 32px;
   }
 
-  /* intro (no trip yet): headline left, prompt + status right */
+  /* Intro: headline left, prompt and status right. */
   .is-intro .container {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
@@ -2059,7 +2058,7 @@ body.is-dragging {
     grid-column: auto;
   }
 
-  /* trip: pinned ticket on the left, days on the right */
+  /* Trip: pinned summary on the left, days on the right. */
   .itinerary {
     display: grid;
     grid-template-columns: 340px minmax(0, 1fr);
@@ -2085,7 +2084,7 @@ body.is-dragging {
   .tips {
     order: 0;
   }
-  /* the ticket goes back to portrait in the narrow side column */
+  /* Portrait ticket in the narrow side column. */
   .pass {
     flex-direction: column;
   }
@@ -2141,7 +2140,7 @@ body.is-dragging {
   }
 }
 
-/* big monitors: grow with the window instead of sitting in a narrow strip */
+/* Large screens: scale with the viewport up to 1600px. */
 @media (min-width: 1440px) {
   .container,
   .site-header {
@@ -2190,7 +2189,7 @@ body.is-dragging {
 }
 
 @media (hover: hover) and (min-width: 640px) {
-  /* keep rows calm; tools fade in on hover or keyboard focus */
+  /* Row tools fade in on hover or keyboard focus. */
   .tl-tools {
     opacity: 0.35;
     transition: opacity 0.15s;
@@ -2212,9 +2211,7 @@ body.is-dragging {
   }
 }
 
-/* ---------- dark theme polish ----------
-   night sky instead of flat navy: a few faint stars, a warm glow on the
-   horizon, and cards that catch a little light on their top edge */
+/* ---------- dark theme ---------- */
 
 :root[data-theme='dark'] .backdrop {
   background:
@@ -2235,7 +2232,7 @@ body.is-dragging {
   opacity: 0.8;
 }
 
-/* cards: a thin highlight along the top edge so they read as raised surfaces */
+/* Subtle top highlight so surfaces read as raised. */
 :root[data-theme='dark'] :is(.prompt, .prompt-collapsed, .tl-card, .error-state, .refine, .feature, .day-tab, .btn-soft, .share-fallback, .menu, .start-time, .theme-btn) {
   background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0) 60%);
   border-color: #283152;
@@ -2244,7 +2241,7 @@ body.is-dragging {
   border-color: #38436b;
 }
 
-/* selected day: sunset-tinted instead of a bright white slab */
+/* Selected day tab. */
 :root[data-theme='dark'] .day-tab[aria-selected='true'] {
   background: linear-gradient(160deg, rgba(255, 106, 92, 0.22), rgba(255, 181, 71, 0.1));
   border-color: rgba(255, 140, 90, 0.65);
@@ -2255,14 +2252,14 @@ body.is-dragging {
   color: var(--muted);
 }
 
-/* disabled primary button: dim and neutral, not muddy brown */
+/* Disabled primary button. */
 :root[data-theme='dark'] .btn-primary:disabled {
   background: #232b45;
   color: #7d85a3;
   opacity: 1;
 }
 
-/* the paper ticket is a touch less bright at night, and casts a deeper shadow */
+/* Dimmer paper and a deeper shadow for the ticket. */
 :root[data-theme='dark'] .pass {
   --paper: #efe4cf;
   --paper-2: #e6d8bf;

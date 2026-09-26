@@ -1,12 +1,11 @@
-// The shape we ask the model for, and the shape the UI renders.
-// Server (prompt + gemini schema) and client (validator) both import from here
-// so the two can't quietly drift apart.
+// The data shape requested from the model and rendered by the UI. Imported by
+// both the server (prompts, schema) and the client (validator) so they can't drift.
 
 /**
  * @typedef {'sight'|'food'|'activity'|'nature'|'shopping'|'nightlife'|'transport'|'stay'|'other'} Category
  *
  * @typedef {Object} Stop
- * @property {string} id            added by us after validation, never by the model
+ * @property {string} id            assigned after validation, never by the model
  * @property {string} name
  * @property {Category} category
  * @property {number} durationMins
@@ -38,7 +37,7 @@ export const CATEGORIES = [
   'other',
 ]
 
-// hard limits - the validator trims anything past these instead of trusting the model
+// Upper bounds enforced by the validator.
 export const LIMITS = {
   maxDays: 10,
   maxStopsPerDay: 10,
@@ -58,5 +57,5 @@ export const LIMITS = {
 export const DEFAULT_START = '09:00'
 export const DEFAULT_DURATION = 60
 
-// what the model is allowed to send back when the request isn't a trip at all
+// Error value the model may return when the input isn't a trip request.
 export const NOT_A_TRIP = 'not_a_trip'

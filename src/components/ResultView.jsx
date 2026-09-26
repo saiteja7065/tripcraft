@@ -3,9 +3,8 @@ import ErrorState from './ErrorState.jsx'
 import Itinerary from './Itinerary.jsx'
 import LoadingState from './LoadingState.jsx'
 
-// Decides which screen to show. Order matters: an in-flight request or an
-// error wins over the current trip, but the trip isn't thrown away - after an
-// error the user can go straight back to it.
+// Chooses the screen to render. A pending request or an error takes precedence
+// over the current trip, which is kept so the user can return to it.
 export default function ResultView({ request, trip, onRetry, onEditRequest, online, ...itineraryProps }) {
   if (request.status === 'loading') {
     return <LoadingState stage={request.stage} startedAt={request.startedAt} onCancel={request.cancel} />

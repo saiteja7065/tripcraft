@@ -3,8 +3,7 @@ import { createOpenAICompatible } from './openaiCompatible.js'
 import { createMock } from './mock.js'
 import { ProviderError } from './ProviderError.js'
 
-// Builds the list of providers we can use, preferred one first.
-// Only providers with a key make it in. No keys at all -> demo mode.
+// Providers that have a key, preferred one first. No keys at all means demo mode.
 export function buildProviders(env = process.env) {
   const available = {}
   if (env.GEMINI_API_KEY) {
@@ -35,9 +34,9 @@ export function buildProviders(env = process.env) {
   return list.length ? { list, demo: false } : { list: [createMock()], demo: true }
 }
 
-// Try providers in order. Move on only for errors where another provider
-// could plausibly do better (rate limit, outage, bad key). A timeout doesn't
-// fall through - the client is already close to giving up by then.
+// Tries providers in order, falling through only when another provider could
+// plausibly succeed (rate limit, outage, rejected key). Timeouts do not fall
+// through: by then the client is close to its own deadline.
 export async function generateWithFallback(providers, request) {
   let lastError
   for (const provider of providers) {

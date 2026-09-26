@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { IconX } from './Icons.jsx'
 
-// One toast at a time is plenty here. A new toast replaces the old one,
-// and the timer restarts because `toast` is a new object.
+// Single toast slot: a new toast replaces the current one and restarts the timer.
 export default function Toast({ toast, onClose }) {
   useEffect(() => {
     if (!toast) return

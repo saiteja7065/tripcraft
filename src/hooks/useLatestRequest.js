@@ -3,13 +3,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 const IDLE = { status: 'idle', stage: null, error: null, startedAt: null }
 
 /**
- * Runs async work where only the newest call is allowed to win.
+ * Runs async work where only the most recent call can update state.
  *
- * Every run gets an id. Starting a new run aborts the previous one AND bumps
- * the id, so even if the old request resolves anyway (some fetches ignore
- * abort, or it finished a tick before we aborted) its result is thrown away.
- * Without this a slow first request can land after a fast second one and
- * overwrite the newer result.
+ * Each run gets an id. Starting a new run aborts the previous one and bumps the
+ * id, so a result that still arrives (e.g. it resolved just before the abort) is
+ * discarded. Without this, a slow earlier request could overwrite a newer result.
  */
 export function useLatestRequest() {
   const [state, setState] = useState(IDLE)
@@ -48,7 +46,7 @@ export function useLatestRequest() {
   }, [])
 
   const cancel = useCallback(() => {
-    latestId.current += 1 // anything still in flight is now stale
+    latestId.current += 1 // invalidate any request still in flight
     controllerRef.current?.abort()
     controllerRef.current = null
     setState(IDLE)
@@ -56,7 +54,7 @@ export function useLatestRequest() {
 
   const reset = useCallback(() => setState(IDLE), [])
 
-  // leaving the page mid-request shouldn't leave a fetch running
+  // Abort an in-flight request on unmount.
   useEffect(() => () => controllerRef.current?.abort(), [])
 
   return { ...state, run, cancel, reset }

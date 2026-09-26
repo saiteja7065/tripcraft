@@ -1,6 +1,5 @@
-// Only shown with ?lab in the url. Makes the server fake a specific bad reply
-// so each failure path can be checked by hand (and shown in the demo video)
-// without waiting for the real model to misbehave.
+// Shown only with ?lab in the URL. Asks the server to simulate a specific bad
+// reply so each failure path can be checked on demand.
 
 const SCENARIOS = [
   ['', 'Off - real request'],

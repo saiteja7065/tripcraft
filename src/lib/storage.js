@@ -1,7 +1,7 @@
 import { validateTripObject } from './validateResult.js'
 
-// localStorage can throw (private mode, storage full, blocked cookies) -
-// saving is a nice-to-have, so it must never break the app.
+// localStorage can throw (private mode, quota, blocked storage). Persistence is
+// best-effort and must never break the app.
 
 const KEY = 'tripcraft:v1'
 
@@ -10,7 +10,7 @@ export function loadSession() {
     const raw = localStorage.getItem(KEY)
     if (!raw) return null
     const saved = JSON.parse(raw)
-    // treat our own old data as untrusted too - the shape may have changed since
+    // Validate saved data too; the stored shape may be from an older version.
     const trip = saved.trip ? validateTripObject(saved.trip, { allowEmpty: true }) : null
     return {
       input: typeof saved.input === 'string' ? saved.input : '',
@@ -25,6 +25,6 @@ export function saveSession(session) {
   try {
     localStorage.setItem(KEY, JSON.stringify(session))
   } catch {
-    // ignore - see above
+    // best-effort
   }
 }

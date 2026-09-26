@@ -1,6 +1,5 @@
-// One error type for every provider so the route doesn't care who failed.
-// `code` is what the frontend switches on, `fallback` says whether trying
-// the next provider is worth it.
+// Common error type for all providers. `code` is what the client handles;
+// `fallback` says whether the next provider is worth trying.
 export class ProviderError extends Error {
   constructor(code, message, { status = 502, fallback = false } = {}) {
     super(message)
@@ -20,14 +19,14 @@ export function fromHttpStatus(provider, status, detail = '') {
   if (status >= 500) {
     return new ProviderError('UPSTREAM', `${provider} is having trouble (${status})`, { status: 502, fallback: true })
   }
-  // 400s are usually our fault (bad model name, bad schema) - still worth a fallback
+  // Usually a request problem (model name, schema); another provider may still succeed.
   return new ProviderError('UPSTREAM', `${provider} refused the request (${status}) ${detail}`.trim(), {
     status: 502,
     fallback: true,
   })
 }
 
-// fetch throws different things for timeouts vs dns/socket errors
+// Distinguishes timeouts from connection errors.
 export function fromFetchError(provider, err) {
   if (err?.name === 'TimeoutError' || err?.name === 'AbortError') {
     return new ProviderError('TIMEOUT', `${provider} took too long`, { status: 504 })

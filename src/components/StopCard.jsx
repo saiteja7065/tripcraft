@@ -15,8 +15,7 @@ export const CATEGORY_LABEL = {
   other: 'Other',
 }
 
-// after a move React may re-create the node (different day) or shuffle it;
-// either way focus can get lost. put it back so keyboard users can keep going.
+// Restore focus after a move, since React may re-create or re-order the node.
 function refocus(stopId, selector) {
   requestAnimationFrame(() => {
     const root = document.querySelector(`[data-stop-id="${stopId}"]`)
@@ -151,7 +150,7 @@ function StopCard({
               onKeyDown={(e) => {
                 if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                   e.preventDefault()
-                  e.stopPropagation() // the <li> also listens for alt+arrows
+                  e.stopPropagation() // the <li> also handles Alt+Arrow
                   move(e.key === 'ArrowUp' ? -1 : 1)
                 }
               }}
