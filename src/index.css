@@ -2133,6 +2133,54 @@ body.is-dragging {
   }
 }
 
+/* big monitors: grow with the window instead of sitting in a narrow strip */
+@media (min-width: 1440px) {
+  .container,
+  .site-header {
+    max-width: min(1600px, 92vw);
+  }
+  .container,
+  .site-header {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+  .is-intro .container {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    column-gap: 80px;
+  }
+  .is-intro .hero h1 {
+    font-size: clamp(3.6rem, 3.6vw, 4.8rem);
+  }
+  .is-intro .hero-sub {
+    font-size: 1.2rem;
+    max-width: 40rem;
+  }
+  .itinerary {
+    grid-template-columns: 400px minmax(0, 1fr);
+    column-gap: 48px;
+  }
+  .pass-dest {
+    font-size: 3rem;
+  }
+  .day-tab {
+    min-width: 180px;
+    max-width: 240px;
+  }
+  .day-title {
+    font-size: 2.3rem;
+  }
+  .timeline {
+    --time-w: 84px;
+    --node: 42px;
+  }
+  .tl-toggle {
+    font-size: 1.05rem;
+  }
+  .refine-open {
+    margin-left: calc(84px + 42px + 28px);
+  }
+}
+
 @media (hover: hover) and (min-width: 640px) {
   /* keep rows calm; tools fade in on hover or keyboard focus */
   .tl-tools {
