@@ -2,7 +2,7 @@
 
 Describe a trip in one sentence and get a day-by-day plan you can actually shape: drag stops around, move them between days, remove them, or ask the AI to redo just one day.
 
-- **Live:** _link added after deploy_
+- **Live:** https://tripcraft-9hg7.onrender.com (free hosting - the first load after idle can take ~50s)
 - **Demo video:** _link added after recording_
 
 It is not a chatbot. The model returns JSON, the browser validates it, and React renders it as interactive components. Raw model text never reaches the screen.
