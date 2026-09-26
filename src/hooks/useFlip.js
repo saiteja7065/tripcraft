@@ -34,6 +34,12 @@ export function useFlip(listRef) {
     // mid-drag the items carry temporary transforms; measuring now would
     // record those as real positions. the drop calls snapshot() anyway.
     if (!list || document.body.classList.contains('is-dragging')) return
+    // a hidden day (inactive tab) has no layout; forget old positions so it
+    // doesn't animate everything in from the top when it becomes visible
+    if (!list.getClientRects().length) {
+      prev.current = new Map()
+      return
+    }
     const now = measure()
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
 

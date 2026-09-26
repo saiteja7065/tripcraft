@@ -38,16 +38,23 @@ export default function Itinerary({
   const dayCount = trip.days.length
   const dayLabels = useMemo(() => Array.from({ length: dayCount }, (_, i) => `Day ${i + 1}`), [dayCount])
 
+  // read the trip through a ref so this callback stays the same between
+  // edits - otherwise every (memoised) day view re-renders on every change
+  const tripRef = useRef(trip)
+  useEffect(() => {
+    tripRef.current = trip
+  }, [trip])
+
   const moveToDay = useCallback(
     (stopId, to) => {
-      const stop = trip.days.flatMap((d) => d.stops).find((s) => s.id === stopId)
+      const stop = tripRef.current.days.flatMap((d) => d.stops).find((s) => s.id === stopId)
       actions.moveToDay(stopId, to)
       onToast({
         message: `Moved "${stop?.name ?? 'stop'}" to Day ${to + 1}`,
         action: { label: 'View', run: () => setActive(to) },
       })
     },
-    [trip.days, actions, onToast],
+    [actions, onToast],
   )
 
   async function share() {
@@ -121,19 +128,25 @@ export default function Itinerary({
       <div className="trip-main">
         <DayTabs days={trip.days} active={day} onChange={setActive} />
 
-        <DayView
-          key={trip.days[day].id}
-          day={trip.days[day]}
-          index={day}
-          dayLabels={dayLabels}
-          destination={trip.destination}
-          lastChange={lastChange}
-          online={online}
-          actions={actions}
-          onRemoveStop={onRemoveStop}
-          onMoveToDay={moveToDay}
-          onRefine={onRefineDay}
-        />
+        {/* every day stays mounted and only the active one is shown, so an
+            "ask AI to tweak" still running on day 2 isn't cancelled by
+            switching to day 3 */}
+        {trip.days.map((d, i) => (
+          <DayView
+            key={d.id}
+            hidden={i !== day}
+            day={d}
+            index={i}
+            dayLabels={dayLabels}
+            destination={trip.destination}
+            lastChange={lastChange && d.stops.some((s) => s.id === lastChange.stopId) ? lastChange : null}
+            online={online}
+            actions={actions}
+            onRemoveStop={onRemoveStop}
+            onMoveToDay={moveToDay}
+            onRefine={onRefineDay}
+          />
+        ))}
       </div>
     </section>
   )

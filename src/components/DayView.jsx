@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react'
+import { memo, useCallback, useMemo, useRef } from 'react'
 import { useDragSort } from '../hooks/useDragSort.js'
 import { useFlip } from '../hooks/useFlip.js'
 import { formatClock, formatDuration, scheduleDay } from '../lib/schedule.js'
@@ -7,7 +7,7 @@ import { IconClock } from './Icons.jsx'
 import RefineDay from './RefineDay.jsx'
 import StopCard from './StopCard.jsx'
 
-export default function DayView({ day, index, dayLabels, destination, lastChange, online, actions, onRemoveStop, onMoveToDay, onRefine }) {
+function DayView({ hidden, day, index, dayLabels, destination, lastChange, online, actions, onRemoveStop, onMoveToDay, onRefine }) {
   const listRef = useRef(null)
   const schedule = useMemo(() => scheduleDay(day), [day])
   const { snapshot } = useFlip(listRef)
@@ -40,7 +40,7 @@ export default function DayView({ day, index, dayLabels, destination, lastChange
   const count = day.stops.length
 
   return (
-    <section className="day-view" role="tabpanel" id={`panel-${day.id}`} aria-labelledby={`tab-${day.id}`}>
+    <section className="day-view" role="tabpanel" id={`panel-${day.id}`} aria-labelledby={`tab-${day.id}`} hidden={hidden}>
       <header className="day-head">
         <div>
           <p className="eyebrow">Day {index + 1}</p>
@@ -109,3 +109,5 @@ export default function DayView({ day, index, dayLabels, destination, lastChange
     </section>
   )
 }
+
+export default memo(DayView)
