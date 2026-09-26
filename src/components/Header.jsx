@@ -8,7 +8,7 @@ function readTheme() {
   return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
 }
 
-export function Logo({ size = 30 }) {
+function Logo({ size = 30 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
       <defs>

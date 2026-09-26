@@ -28,11 +28,3 @@ export function saveSession(session) {
     // ignore - see above
   }
 }
-
-export function clearSession() {
-  try {
-    localStorage.removeItem(KEY)
-  } catch {
-    // ignore
-  }
-}

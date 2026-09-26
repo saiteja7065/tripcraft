@@ -3,7 +3,7 @@ import { validateDay, validateTrip } from './validateResult.js'
 // The only file in the frontend that talks to the network.
 // It never calls the model directly - only our own /api, which holds the key.
 
-export const REQUEST_TIMEOUT_MS = 45_000
+const REQUEST_TIMEOUT_MS = 45_000
 
 export class AppError extends Error {
   constructor(code, message, extra = {}) {
