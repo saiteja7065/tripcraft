@@ -1038,11 +1038,16 @@ code {
 .pass-dest:focus {
   outline: none;
 }
+/* Long names use a smaller size so they wrap between words, not inside them. */
+.pass .pass-dest.is-long {
+  font-size: clamp(1.55rem, 6.4vw, 2.1rem);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
 .pass-title {
   position: relative;
   z-index: 1;
   margin-top: 6px;
-  padding-right: 70px; /* clear of the stamp */
   font-weight: 600;
   color: color-mix(in srgb, var(--paper-ink) 75%, transparent);
 }
@@ -1062,11 +1067,18 @@ code {
   background: color-mix(in srgb, var(--from) 12%, transparent);
 }
 
+/* Title row, with room on the right for the stamp. */
+.pass-sub {
+  position: relative;
+  min-height: 64px;
+  padding-right: 92px;
+}
+
 /* Stamp mark. */
 .pass-stamp {
   position: absolute;
-  right: 18px;
-  bottom: 14px;
+  right: -2px;
+  top: -8px;
   display: grid;
   place-items: center;
   align-content: center;
@@ -2093,6 +2105,9 @@ body.is-dragging {
   }
   .pass-dest {
     font-size: 2.6rem;
+  }
+  .pass .pass-dest.is-long {
+    font-size: 1.75rem;
   }
   .pass-stub {
     width: auto;

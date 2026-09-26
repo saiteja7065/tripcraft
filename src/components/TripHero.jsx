@@ -59,21 +59,23 @@ export default function TripHero({ trip, meta, headingRef }) {
         </div>
 
         <p className="pass-label">Destination</p>
-        <h2 className="pass-dest" ref={headingRef} tabIndex={-1} id="trip-title">
+        <h2 className={`pass-dest ${place.length > 12 ? 'is-long' : ''}`} ref={headingRef} tabIndex={-1} id="trip-title">
           {place}
         </h2>
-        <p className="pass-title">{trip.title}</p>
-        {(meta?.demo || meta?.repaired) && (
-          <p className="pass-flags">
-            {meta.demo && <span>Sample data</span>}
-            {meta.repaired && <span title="The first AI reply was broken; it was fixed automatically">Auto-repaired</span>}
-          </p>
-        )}
-
-        <span className="pass-stamp" aria-hidden="true">
-          <b>{code}</b>
-          planned
-        </span>
+        {/* The stamp sits beside the title so the destination can use the full width. */}
+        <div className="pass-sub">
+          <p className="pass-title">{trip.title}</p>
+          {(meta?.demo || meta?.repaired) && (
+            <p className="pass-flags">
+              {meta.demo && <span>Sample data</span>}
+              {meta.repaired && <span title="The first AI reply was broken; it was fixed automatically">Auto-repaired</span>}
+            </p>
+          )}
+          <span className="pass-stamp" aria-hidden="true">
+            <b>{code}</b>
+            planned
+          </span>
+        </div>
       </div>
 
       <div className="pass-stub">
