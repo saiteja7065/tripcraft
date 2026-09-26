@@ -1,26 +1,65 @@
 import { useMemo } from 'react'
-import { destinationPalette } from '../lib/palette.js'
+import { destinationPalette, hash } from '../lib/palette.js'
 import { IconPlane } from './Icons.jsx'
 
-// The trip header, styled like a boarding pass. Colours come from the
-// destination name, so each trip gets its own look.
+// Barcode drawn from a seed so every trip gets its own (and the same trip
+// always gets the same one). Purely decorative.
+function Barcode({ seed }) {
+  const bars = useMemo(() => {
+    let x = seed || 1
+    const out = []
+    let pos = 0
+    for (let i = 0; i < 38; i++) {
+      x = (x * 1103515245 + 12345) >>> 0 // tiny LCG, good enough for stripes
+      const w = 1 + (x % 3)
+      out.push({ x: pos, w })
+      pos += w + 1 + ((x >> 8) % 2)
+    }
+    return { out, width: pos }
+  }, [seed])
+
+  return (
+    <svg className="barcode" viewBox={`0 0 ${bars.width} 24`} preserveAspectRatio="none" aria-hidden="true">
+      {bars.out.map((b, i) => (
+        <rect key={i} x={b.x} y="0" width={b.w} height="24" />
+      ))}
+    </svg>
+  )
+}
+
+// The trip header, styled as a printed paper boarding pass. The stripe and
+// numbers take the destination's colours, so each trip looks a bit different.
 export default function TripHero({ trip, meta, headingRef }) {
-  const palette = useMemo(() => destinationPalette(trip.destination || trip.title), [trip.destination, trip.title])
+  const place = trip.destination || 'Your trip'
+  const seed = useMemo(() => hash(`${place}|${trip.title}`), [place, trip.title])
+  const palette = useMemo(() => destinationPalette(place), [place])
   const stops = trip.days.reduce((n, d) => n + d.stops.length, 0)
   const hours = Math.round(trip.days.reduce((n, d) => n + d.stops.reduce((m, s) => m + s.durationMins, 0), 0) / 60)
-  const place = trip.destination || 'Your trip'
   const code = place.replace(/[^a-z]/gi, '').slice(0, 3).toUpperCase() || 'TRP'
+  const ticketNo = `TC-${(seed % 900000) + 100000}`
 
   return (
     <div className="pass" style={{ '--from': palette.from, '--to': palette.to }}>
       <div className="pass-main">
+        <div className="pass-top" aria-hidden="true">
+          <span>Tripcraft · Boarding pass</span>
+          <span>{ticketNo}</span>
+        </div>
+
         <div className="pass-route" aria-hidden="true">
-          <span>YOU</span>
+          <span className="pass-end">
+            <small>From</small>
+            YOU
+          </span>
           <span className="pass-line">
             <IconPlane size={16} />
           </span>
-          <span>{code}</span>
+          <span className="pass-end">
+            <small>To</small>
+            {code}
+          </span>
         </div>
+
         <p className="pass-label">Destination</p>
         <h2 className="pass-dest" ref={headingRef} tabIndex={-1} id="trip-title">
           {place}
@@ -32,7 +71,13 @@ export default function TripHero({ trip, meta, headingRef }) {
             {meta.repaired && <span title="The first AI reply was broken; it was fixed automatically">Auto-repaired</span>}
           </p>
         )}
+
+        <span className="pass-stamp" aria-hidden="true">
+          <b>{code}</b>
+          planned
+        </span>
       </div>
+
       <div className="pass-stub">
         <dl>
           <div>
@@ -48,6 +93,10 @@ export default function TripHero({ trip, meta, headingRef }) {
             <dd>{hours}h</dd>
           </div>
         </dl>
+        <div className="pass-code" aria-hidden="true">
+          <Barcode seed={seed} />
+          <span>{ticketNo}</span>
+        </div>
       </div>
     </div>
   )

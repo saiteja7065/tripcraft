@@ -13,7 +13,7 @@ const PALETTES = [
   ['#d9381e', '#f5a524'], // desert
 ]
 
-function hash(str) {
+export function hash(str) {
   let h = 2166136261
   for (let i = 0; i < str.length; i++) {
     h ^= str.charCodeAt(i)
