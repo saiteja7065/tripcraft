@@ -1,6 +1,6 @@
 # Tripcraft
 
-Describe a trip in one sentence and get a day-by-day plan you can actually shape: drag stops around, move them between days, remove them, or ask the AI to redo just one day. Built for the Flam frontend internship assignment (trip planner).
+Describe a trip in one sentence and get a day-by-day plan you can actually shape: drag stops around, move them between days, remove them, or ask the AI to redo just one day.
 
 - **Live:** _link added after deploy_
 - **Demo video:** _link added after recording_
@@ -154,7 +154,7 @@ Share links and saved sessions go through the same validator - a URL is user inp
 I built this with **Claude Code as a pair programmer**. I'm being upfront about it because it did a lot of the typing - the decisions, direction and checking were mine.
 
 **What I did**
-- Read the brief and researched Flam (JD, product, their focus on interactive and "app-less" content), then **chose the trip planner** because it fit that and has the richest state to manage.
+- Read the brief and the job description, compared the three project options, and **chose the trip planner** because it has the richest state to manage (nested days and stops, reordering, moving between days).
 - **Set the constraints:** JavaScript rather than TypeScript (the JD lists JS), no database, a small backend only to hide the key, free-tier deployment.
 - **Picked the provider from measured results:** created keys for Groq, Gemini and OpenRouter, benchmarked real trip prompts, and chose Groq `gpt-oss-120b` as primary with Gemini as fallback.
 - **Directed the design:** rejected the first UI as too generic and pushed for a real visual identity, chose the paper boarding-pass style out of six options, asked for the wide desktop layout, and kept dark mode but had it reworked.
